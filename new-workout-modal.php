@@ -167,14 +167,14 @@ $mysqli->close();
 
     function addSetClicked(){
         count++;
-        let muscle_group_id = $("#muscle_group option:selected").val();
+        let muscle_group_id = $('#muscle_group option:selected').val();
         let reps = document.querySelector('#reps').value.trim();
         let weight = document.querySelector('#weight').value.trim();
-        let exercise_name = $("#muscle_exercises option:selected").html();
-        if(exercise_name == "Other" || muscle_group_id == 7){
+        let exercise_name = $('#muscle_exercises option:selected').html();
+        if(exercise_name == 'Other' || muscle_group_id == 7){
             exercise_name = document.querySelector('#exercise-name').value.trim();
         }
-
+        // console.log(muscle_group_id);
         $.ajax({
             url: 'add-new-set.php',
             type: 'POST',
@@ -183,12 +183,36 @@ $mysqli->close();
             success: (response) => {
                 console.log(response)
                 // document.querySelector('#muscle_exercises').innerHTML = '<option value="" selected>Exercise Name</option>';
-                if(response.length !== undefined){
-                    response.forEach(element => {
-                    fillSelect(element);
-                });} else{
-                    fillSelect(response);
-                }
+                // if(response.length !== undefined){
+                //     response.forEach(element => {
+                //     fillSelect(element);
+                // });} else{
+                //     fillSelect(response);
+                // }
+                alert("Successfully added");
+                let tr = document.createElement('tr');
+                let td_reps = document.createElement('td');
+                let td_weight = document.createElement('td');
+                let td_count = document.createElement('td');
+                let td_delete = document.createElement('td');
+                let deleteBtn = document.createElement('button');
+
+                td_reps.textContent = reps;
+                td_weight.textContent = weight;
+                td_count.textContent = count;
+                deleteBtn.classList.add('btn','btn-outline-danger');
+                deleteBtn.textContent = "Delete";
+                td_delete.appendChild(deleteBtn)
+
+                tr.appendChild(td_count);
+                tr.appendChild(td_reps);
+                tr.appendChild(td_weight);
+                tr.appendChild(deleteBtn);
+                
+                document.querySelector('#addSets').appendChild(tr);
+
+                document.querySelector('#reps').value = "";
+                document.querySelector('#weight').value = "";
             },
             error: (e) => {
                 alert('AJAX error');
@@ -197,30 +221,6 @@ $mysqli->close();
         })
 
         
-
-        let tr = document.createElement('tr');
-        let td_reps = document.createElement('td');
-        let td_weight = document.createElement('td');
-        let td_count = document.createElement('td');
-        let td_delete = document.createElement('td');
-        let deleteBtn = document.createElement('button');
-
-        td_reps.textContent = reps;
-        td_weight.textContent = weight;
-        td_count.textContent = count;
-        deleteBtn.classList.add('btn','btn-outline-danger');
-        deleteBtn.textContent = "Delete";
-        td_delete.appendChild(deleteBtn)
-
-        tr.appendChild(td_count);
-        tr.appendChild(td_reps);
-        tr.appendChild(td_weight);
-        tr.appendChild(deleteBtn);
-        
-        document.querySelector('#addSets').appendChild(tr);
-
-        document.querySelector('#reps').value = "";
-        document.querySelector('#weight').value = "";
     }
 
     function addNewExerciseClicked(){

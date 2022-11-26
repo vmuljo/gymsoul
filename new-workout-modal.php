@@ -48,13 +48,13 @@ $mysqli->close();
                         <div class="form-floating mb-3">
                             <div class="input-group mb-3">
                                 <select class="form-select" id="muscle_group" onchange='load_exercises()'>
-                                    <option value="" selected>Muscle Group</option>
+                                    <option value="0" selected>Muscle Group</option>
                                     <?php while($row = $results_muscle->fetch_assoc()) : ?>
                                         <option value="<?php echo $row['muscle_id']?>" class="dropdown-item"><?php echo $row['muscle']?></option>
                                     <?php endwhile; ?>
                                 </select>
                                 <select class="form-select" id="muscle_exercises">
-                                    <option value="" selected>Exercise Name</option>
+                                    <option value="0" selected>Exercise Name</option>
                                     
                                 </select>
                                 <div class="form-floating">
@@ -103,12 +103,7 @@ $mysqli->close();
                                 <th scope="col">Weight</th>
                             </tr>
                             </thead>
-                            <tbody>
-                            <tr>
-                                <th scope="row"></th>
-                                <td></td>
-                                <td></td>
-                            </tr>
+                            <tbody id="addedExercises">
                             </tbody>
                         </table>
                     </div>
@@ -138,7 +133,7 @@ $mysqli->close();
             dataType: 'json', // parses 
             success: (response) => {
                 console.log(response)
-                document.querySelector('#muscle_exercises').innerHTML = '<option value="" selected>Exercise Name</option>';
+                document.querySelector('#muscle_exercises').innerHTML = '<option value="0" selected>Exercise Name</option>';
                 if(response.length !== undefined){
                     response.forEach(element => {
                     fillSelect(element);
@@ -164,7 +159,6 @@ $mysqli->close();
     }
 
     let count = 0;
-
     function addSetClicked(){
         count++;
         let muscle_group_id = $('#muscle_group option:selected').val();
@@ -201,13 +195,11 @@ $mysqli->close();
 
         document.querySelector('#reps').value = "";
         document.querySelector('#weight').value = "";
-
-        
     }
 
     function addNewExerciseClicked(){
         count = 0;
-        let base = "<tr><td><input type='text' class='form-control' id='reps'/></td><td><input type='text' class='form-control' id='weight'/></td><td><button type='button' class='btn btn-outline-primary' onclick='addSetClicked()'>Add new set</button></td></tr>";
+        let base = "<tr><td></td><td><input type='text' class='form-control' id='reps'/></td><td><input type='text' class='form-control' id='weight'/></td><td><button type='button' class='btn btn-outline-primary' onclick='addSetClicked()'>Add new set</button></td></tr>";
         let selected_muscle_group=$("#muscle_group option:selected").val();
         let selected_exercise = $("#muscle_exercises option:selected").html();
         if(selected_exercise == "Other"){
@@ -229,31 +221,31 @@ $mysqli->close();
         reps = reps.toString();
         weight = weight.toString();
 
-
         $.ajax({
             url: 'ajax-backend/add-new-exercise.php',
             type: 'POST',
             data: {muscle_group_id: selected_muscle_group, reps: reps, weights: weight, exercise_name: selected_exercise},
             dataType: 'json', // parses 
             success: (response) => {
-                console.log(response)
-                // document.querySelector('#muscle_exercises').innerHTML = '<option value="" selected>Exercise Name</option>';
-                // if(response.length !== undefined){
-                //     response.forEach(element => {
-                //     fillSelect(element);
-                // });} else{
-                //     fillSelect(response);
-                // }
+                console.log(response);
                 alert("Successfully added");
+
                 let tr = document.createElement('tr');
                 let td_muscle = document.createElement('td');
                 let td_workout = document.createElement('td');
                 let td_reps = document.createElement('td');
                 let td_weight = document.createElement('td');
 
-                td_muscle.textContent = selected_muscle_group;
-                td_workout.textContent = selected_exercise;
-                // td_reps = 
+                td_muscle.textContent = response.muscle;
+                td_workout.textContent = response.exercise_name;
+                td_reps.textContent = response.reps;
+                td_weight.textContent = response.weight;
+                tr.appendChild(td_muscle);
+                tr.appendChild(td_workout);
+                tr.appendChild(td_reps);
+                tr.appendChild(td_weight);
+
+                document.querySelector('#addedExercises').appendChild(tr);
             },
             error: (e) => {
                 alert('AJAX error');
@@ -261,32 +253,16 @@ $mysqli->close();
             }
         })
                 
-        document.querySelector('#addSets').innerHTML = base; 
+        document.querySelector('#addSets').innerHTML = base;
+        document.querySelector('#muscle_group').value = "0";
+        document.querySelector('#muscle_exercises').value = "0";
+        document.querySelector('#exercise-name').value = "";
+
     }
 
     function deleteSetClicked(btn){
         console.log(btn.parentNode);
         btn.parentNode.remove();
-        // $.ajax({
-        //     url: 'ajax-backend/delete-set.php',
-        //     type: 'POST',
-        //     data: {reps_value: reps, weight_value: weight},
-        //     dataType: 'json', // parses 
-        //     success: (response) => {
-        //         console.log(response)
-        //         // document.querySelector('#muscle_exercises').innerHTML = '<option value="" selected>Exercise Name</option>';
-        //         if(response.length !== undefined){
-        //             response.forEach(element => {
-        //             fillSelect(element);
-        //         });} else{
-        //             fillSelect(response);
-        //         }
-        //     },
-        //     error: (e) => {
-        //         alert('AJAX error');
-        //         console.log(e);
-        //     }
-        // })
     }
 
 </script>

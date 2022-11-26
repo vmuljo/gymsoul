@@ -24,17 +24,33 @@ $sql = "INSERT INTO exercises(muscle_group_id, exercise_name, reps, weight) VALU
 $results = $mysqli->query($sql);
 // check for sql errors
 if (!$results) {
-    var_dump($_POST);
-    // var_dump($exercise_name);
     echo $mysqli->error;
     $mysqli->close();
     exit();
 }
 
-// $sql_latest = "SELECT * FROM exercises WHERE exercise_id =" . 
+$sql_latest = "SELECT muscle_groups.muscle as muscle, exercise_name, reps, weight 
+                FROM exercises 
+                LEFT JOIN muscle_groups
+                ON muscle_groups.muscle_id = exercises.muscle_group_id
+                ORDER BY exercise_id DESC LIMIT 1;
+                ";
+$results_latest = $mysqli->query($sql_latest);
+
+if (!$results_latest) {
+    echo $mysqli->error;
+    $mysqli->close();
+    exit();
+}
+
+// var_dump($results_latest);
+
 // 3. close the db connection
 $mysqli->close();
 
-echo json_encode('success');
+$latest_row = $results_latest->fetch_assoc();
+$latest_row = json_encode($latest_row);
+
+echo $latest_row;
 ?>
 

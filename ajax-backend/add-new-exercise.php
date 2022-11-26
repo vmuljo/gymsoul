@@ -19,7 +19,18 @@ $weight = "'".$_POST['weights'] . "'";
 // "string(29) "'Unilateral Tricep Extension'"
 // Column count doesn't match value count at row 1"
 
+// $sql_temp = "CREATE TEMPORARY VIEW temp_exercises AS SELECT * FROM exercises;";
+// $results_temp = $mysqli->query($sql_temp);
+// // check for sql errors
+// if (!$results_temp) {
+//     echo $mysqli->error;
+//     $mysqli->close();
+//     exit();
+// }
+
 $sql = "INSERT INTO exercises(muscle_group_id, exercise_name, reps, weight) VALUES ($muscle_group_id, $exercise_name, $reps, $weight);";
+
+// $sql = "INSERT INTO temp_exercises(muscle_group_id, exercise_name, reps, weight) VALUES ($muscle_group_id, $exercise_name, $reps, $weight);";
 
 $results = $mysqli->query($sql);
 // check for sql errors

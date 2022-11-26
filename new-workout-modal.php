@@ -1,5 +1,5 @@
 <?php 
-require "config.php";
+require "config/config.php";
 
 $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
@@ -132,7 +132,7 @@ $mysqli->close();
         let selected_muscle_group=$("#muscle_group option:selected").val(); //get the value of the current selected option.
 
         $.ajax({
-            url: 'dropdown-select.php',
+            url: 'ajax-backend/dropdown-select.php',
             type: 'POST',
             data: {option_value: selected_muscle_group},
             dataType: 'json', // parses 
@@ -174,11 +174,66 @@ $mysqli->close();
         if(exercise_name == 'Other' || muscle_group_id == 7){
             exercise_name = document.querySelector('#exercise-name').value.trim();
         }
-        // console.log(muscle_group_id);
+
+        let tr = document.createElement('tr');
+        let td_reps = document.createElement('td');
+        let td_weight = document.createElement('td');
+        let td_count = document.createElement('td');
+        let td_delete = document.createElement('td');
+        let deleteBtn = document.createElement('button');
+
+        tr.classList.add('setData');
+        td_reps.textContent = reps;
+        td_weight.textContent = weight;
+        td_count.textContent = count;
+        deleteBtn.classList.add('btn','btn-outline-danger');
+        deleteBtn.type = 'button'
+        deleteBtn.textContent = "Delete";
+        deleteBtn.setAttribute('onclick', 'deleteSetClicked(this)');
+        td_delete.appendChild(deleteBtn)
+
+        tr.appendChild(td_count);
+        tr.appendChild(td_reps);
+        tr.appendChild(td_weight);
+        tr.appendChild(deleteBtn);
+        
+        document.querySelector('#addSets').appendChild(tr);
+
+        document.querySelector('#reps').value = "";
+        document.querySelector('#weight').value = "";
+
+        
+    }
+
+    function addNewExerciseClicked(){
+        count = 0;
+        let base = "<tr><td><input type='text' class='form-control' id='reps'/></td><td><input type='text' class='form-control' id='weight'/></td><td><button type='button' class='btn btn-outline-primary' onclick='addSetClicked()'>Add new set</button></td></tr>";
+        let selected_muscle_group=$("#muscle_group option:selected").val();
+        let selected_exercise = $("#muscle_exercises option:selected").html();
+        if(selected_exercise == "Other"){
+            selected_exercise = document.querySelector('#exercise-name').value.trim();
+        }
+
+        let addedSets = document.getElementsByClassName("setData");
+        console.log(addedSets);
+
+        let reps = [];
+        let weight = [];
+
+        for (let set of addedSets){
+            console.log(set.querySelectorAll('td')[1].textContent);
+            reps.push(parseInt(set.querySelectorAll('td')[1].textContent));
+            weight.push(set.querySelectorAll('td')[2].textContent);
+        }
+
+        reps = reps.toString();
+        weight = weight.toString();
+
+
         $.ajax({
-            url: 'add-new-set.php',
+            url: 'ajax-backend/add-new-exercise.php',
             type: 'POST',
-            data: {muscle_group_id: muscle_group_id, reps_value: reps, weight_value: weight, exercise_name: exercise_name},
+            data: {muscle_group_id: selected_muscle_group, reps: reps, weights: weight, exercise_name: selected_exercise},
             dataType: 'json', // parses 
             success: (response) => {
                 console.log(response)
@@ -191,82 +246,47 @@ $mysqli->close();
                 // }
                 alert("Successfully added");
                 let tr = document.createElement('tr');
+                let td_muscle = document.createElement('td');
+                let td_workout = document.createElement('td');
                 let td_reps = document.createElement('td');
                 let td_weight = document.createElement('td');
-                let td_count = document.createElement('td');
-                let td_delete = document.createElement('td');
-                let deleteBtn = document.createElement('button');
 
-                td_reps.textContent = reps;
-                td_weight.textContent = weight;
-                td_count.textContent = count;
-                deleteBtn.classList.add('btn','btn-outline-danger');
-                deleteBtn.textContent = "Delete";
-                td_delete.appendChild(deleteBtn)
-
-                tr.appendChild(td_count);
-                tr.appendChild(td_reps);
-                tr.appendChild(td_weight);
-                tr.appendChild(deleteBtn);
+                td_muscle.textContent = selected_muscle_group;
+                td_workout.textContent = selected_exercise;
+                // td_reps = 
+            },
+            error: (e) => {
+                alert('AJAX error');
+                console.log(e);
+            }
+        })
                 
-                document.querySelector('#addSets').appendChild(tr);
-
-                document.querySelector('#reps').value = "";
-                document.querySelector('#weight').value = "";
-            },
-            error: (e) => {
-                alert('AJAX error');
-                console.log(e);
-            }
-        })
-
-        
+        document.querySelector('#addSets').innerHTML = base; 
     }
 
-    function addNewExerciseClicked(){
-        count = 0;
-        let base = "<tr><td><input type='text' class='form-control' id='reps'/></td><td><input type='text' class='form-control' id='weight'/></td><td><button type='button' class='btn btn-outline-primary' onclick='addSetClicked()'>Add new set</button></td></tr>";
-        let selected_muscle_group=$("#muscle_group option:selected").html();
-        let selected_exercise = $("#muscle_exercises option:selected").html();
-        if(selected_exercise == "Other"){
-            selected_exercise = document.querySelector('#exercise-name').value.trim();
-        }
-        console.log(selected_muscle_group)
-
-        document.querySelector('#addSets').innerHTML = base;  
-
-        let tr = document.createElement('tr');
-        let td_muscle = document.createElement('td');
-        let td_workout = document.createElement('td');
-        let td_reps = document.createElement('td');
-        let td_weight = document.createElement('td');
-
-        td_muscle.textContent = selected_muscle_group;
-        td_workout.textContent = selected_exercise;
-        // td_reps = 
-    }
-
-    function deleteSetClicked(){
-        $.ajax({
-            url: 'delete-set.php',
-            type: 'POST',
-            data: {reps_value: reps, weight_value: weight},
-            dataType: 'json', // parses 
-            success: (response) => {
-                console.log(response)
-                // document.querySelector('#muscle_exercises').innerHTML = '<option value="" selected>Exercise Name</option>';
-                if(response.length !== undefined){
-                    response.forEach(element => {
-                    fillSelect(element);
-                });} else{
-                    fillSelect(response);
-                }
-            },
-            error: (e) => {
-                alert('AJAX error');
-                console.log(e);
-            }
-        })
+    function deleteSetClicked(btn){
+        console.log(btn.parentNode);
+        btn.parentNode.remove();
+        // $.ajax({
+        //     url: 'ajax-backend/delete-set.php',
+        //     type: 'POST',
+        //     data: {reps_value: reps, weight_value: weight},
+        //     dataType: 'json', // parses 
+        //     success: (response) => {
+        //         console.log(response)
+        //         // document.querySelector('#muscle_exercises').innerHTML = '<option value="" selected>Exercise Name</option>';
+        //         if(response.length !== undefined){
+        //             response.forEach(element => {
+        //             fillSelect(element);
+        //         });} else{
+        //             fillSelect(response);
+        //         }
+        //     },
+        //     error: (e) => {
+        //         alert('AJAX error');
+        //         console.log(e);
+        //     }
+        // })
     }
 
 </script>

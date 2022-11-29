@@ -35,6 +35,7 @@ $sql = "INSERT INTO exercises(muscle_group_id, exercise_name, reps, weight) VALU
 $results = $mysqli->query($sql);
 // check for sql errors
 if (!$results) {
+    echo "error 1";
     echo $mysqli->error;
     $mysqli->close();
     exit();
@@ -49,6 +50,7 @@ $sql_latest = "SELECT muscle_groups.muscle as muscle, exercise_name, reps, weigh
 $results_latest = $mysqli->query($sql_latest);
 
 if (!$results_latest) {
+    echo "error 2";
     echo $mysqli->error;
     $mysqli->close();
     exit();

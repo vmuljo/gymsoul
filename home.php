@@ -83,7 +83,7 @@
             <h1>Welcome, Tommy Trojan</h1>
             <hr>
             <div class="d-flex justify-content-around">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newWorkout">Log a new Workout</button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newWorkout" onclick="refresh()">Log a new Workout</button>
                 <!-- <button type="button" class="btn btn-primary">Search a Workout</button> Might not add search function since repetitive with Workouts tab. -->
             </div>
             <h2 class="my-3">Latest Workouts</h2>
@@ -807,7 +807,7 @@
     </main>
 
     <?php include "new-workout-modal.php"; ?>
-  <!-- <script src="scripts.js"></script> -->
+  <script src="refresh-exercises.js"></script>
   <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script> -->
 
 </body>

@@ -138,7 +138,43 @@
     <?php include "new-workout-modal.php";?>
     <?php include "logged-workout-modal.php";?>
 
-    <script src="workouts.js"></script>
+    <script src="refresh-exercises.js"></script>
+    <script>
+        document.querySelector("#newWorkoutButton").onclick = () => {
+            refresh();
+            console.log(document.getElementById('newWorkout'))
+            let workoutModal = new bootstrap.Modal(document.getElementById('newWorkout'), {
+                keyboard: false
+            })
+
+            workoutModal.show();
+        }
+
+        // show the log new workout modal when clicking the card with a +
+        document.querySelector('#newWorkoutCard').onclick = () => {
+            refresh();
+            console.log(document.getElementById('newWorkout'))
+            let workoutModal = new bootstrap.Modal(document.getElementById('newWorkout'), {
+                keyboard: false
+            })
+
+            workoutModal.show();
+        }
+
+        // show the logged workout modal when clicking on a card in workouts tab
+        // currently only has placeholder text from "Leg Day" for all the cards, as new modals are needed for each card and is a waste of memory. Will implement with PHP
+        document.querySelectorAll('.loggedWorkoutCard').forEach((logged) => {
+            logged.onclick = () => {
+                console.log(logged)
+                let loggedWorkout = new bootstrap.Modal(document.getElementById('loggedWorkout'), {
+                    keyboard: false
+                })
+            
+                loggedWorkout.show();
+            }
+        
+        })
+    </script>
 
 </body>
 </html>

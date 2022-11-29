@@ -85,14 +85,16 @@ $mysqli->close();
                             <div class="d-flex justify-content-center"><button type="button" class="btn btn-outline-primary" onclick="addNewExerciseClicked()">Add New Exercise</button></div>
                         </div>
                     </div>
+
+                    
                     
                     <!-- <hr> -->
 
                     <div class="card p-3 my-3">
                         <h4 class="mb-3">Added Exercises</h4>
                         <div class="input-group">
-                            <span class="input-group-text" id="basic-addon1">Notes:</span>
-                            <input type="text" class="form-control" placeholder="" aria-label="notes">
+                            <span class="input-group-text" >Notes:</span>
+                            <input type="text" class="form-control" id="notes" placeholder="" aria-label="notes">
                         </div>
                         <table class="table">
                             <thead>
@@ -113,7 +115,7 @@ $mysqli->close();
             </div>
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Log it!</button>
+            <button type="button" class="btn btn-primary" onclick="loggedWorkoutClicked()">Log it!</button>
             </div>
         </div>
     </div>
@@ -134,11 +136,15 @@ $mysqli->close();
             success: (response) => {
                 console.log(response)
                 document.querySelector('#muscle_exercises').innerHTML = '<option value="0" selected>Exercise Name</option>';
+                // may return undefined if other is selected, so check if not undefined to loop through. Otherwise, just fill in with the response
                 if(response.length !== undefined){
                     response.forEach(element => {
-                    fillSelect(element);
-                });} else{
+                        fillSelect(element);
+                    });
+                    // document.querySelector('#exercise-name').disabled=true;
+                } else{
                     fillSelect(response);
+                    // document.querySelector('#exercise-name').disabled=false;
                 }
             },
             error: (e) => {
@@ -263,6 +269,29 @@ $mysqli->close();
     function deleteSetClicked(btn){
         console.log(btn.parentNode);
         btn.parentNode.remove();
+    }
+
+    let views_count = 0;
+    function loggedWorkoutClicked(){
+        let workoutName = document.querySelector('#workout-name').value.trim();
+        let date = document.querySelector('#date').value.trim();
+        let length = document.querySelector('#length').value.trim();
+        let notes = document.querySelector('#notes').value.trim();
+
+        $.ajax({
+            url: 'ajax-backend/logged_workout.php',
+            type: 'POST',
+            data: {workout_name: workoutName, date: date, length: length, views_count: views_count, notes: notes},
+            success: (response) => {
+                console.log(response);
+                alert("Successfully added");
+                views_count++;
+            },
+            error: (e) => {
+                alert('AJAX error');
+                console.log(e);
+            }
+        })
     }
 
 </script>

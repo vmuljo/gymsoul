@@ -1,7 +1,8 @@
+
 // show the log new workout modal when clicking the log new workout button
 
 document.querySelector("#newWorkoutButton").onclick = () => {
-    console.log("heelo")
+    refresh();
     console.log(document.getElementById('newWorkout'))
     let workoutModal = new bootstrap.Modal(document.getElementById('newWorkout'), {
         keyboard: false
@@ -14,6 +15,7 @@ document.querySelector("#newWorkoutButton").onclick = () => {
 
 // show the log new workout modal when clicking the card with a +
 document.querySelector('#newWorkoutCard').onclick = () => {
+    refresh();
     console.log(document.getElementById('newWorkout'))
     let workoutModal = new bootstrap.Modal(document.getElementById('newWorkout'), {
         keyboard: false

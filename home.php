@@ -1,3 +1,52 @@
+<?php 
+require "config/config.php";
+$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+if ( $mysqli->connect_errno ) {
+    echo $mysqli->connect_error;
+    exit();
+}
+
+$user_id = 1;
+
+$mysqli->set_charset('utf8');
+
+// sql statement to get from workouts based on the user id and get the latest 5 workouts
+$sql_slider = "SELECT *
+                FROM workouts 
+                WHERE user_id = $user_id 
+                ORDER BY id DESC LIMIT 5;";
+
+$results_slider = $mysqli->query($sql_slider);
+if (!$results_slider) {
+    echo $mysqli->error;
+    $mysqli->close();
+    exit();
+}
+
+// if($results_slider->num_rows == 0){
+//     // something to display no workouts logged
+// }
+
+// $row_slider = $results_slider->fetch_assoc();
+// $workout_id = $row_slider['id'];
+
+// then wants to use each workout id to get the exercises
+/* $sql_cards = "SELECT workout_id, exercise_id, muscle_groups.muscle as muscle, exercises.exercise_name as exercise_name, exercises.reps as reps, exercises.weight as weight
+            FROM workouts_exercises_join 
+            //LEFT JOIN workouts
+            //ON workouts.id = workouts_exercises_join.workout_id
+            LEFT JOIN exercises
+            ON exercises.exercise_id = workouts_exercises_join.exercise_id
+            LEFT JOIN muscle_groups
+            ON muscle_groups.muscle_id = exercises.muscle_group_id
+            WHERE workouts_exercises_join.workout_id = $workout_id;
+            ";*/
+
+// in the above sql statement, we take only the rows with certain workout id and also get muscle name, exercise name, reps, and weight into a table.
+// $mysqli->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -89,719 +138,71 @@
             <h2 class="my-3">Latest Workouts</h2>
             <!-- Cards to display latest workouts -->
             <div id="cards" class="d-flex flex-row">
+                <?php while($row = $results_slider->fetch_assoc()) :?>
                 <div class="card p-3 mx-3 d-flex flex-column text-black">
-                    <h3>Leg Day</h3>
-                    <p>11/13/2022</p>
-                    <p>00:57:40</p>
+                    <h3><?php echo $row['name'];?></h3>
+                    <p><?php echo $row['date'];?></p>
+                    <p><?php echo $row['length'];?></p>
+                    <?php  
+                    // then wants to use each workout id to get the exercises
+                    $workout_id = $row['id'];
+                    $sql_exercises = "SELECT workout_id, workouts_exercises_join.exercise_id, muscle_groups.muscle as muscle, exercises.exercise_name as exercise_name, exercises.reps as reps, exercises.weight as weight
+                                        FROM workouts_exercises_join 
+                                        /* LEFT JOIN workouts */
+                                        /* ON workouts.id = workouts_exercises_join.workout_id */
+                                        LEFT JOIN exercises
+                                        ON exercises.exercise_id = workouts_exercises_join.exercise_id
+                                        LEFT JOIN muscle_groups
+                                        ON muscle_groups.muscle_id = exercises.muscle_group_id
+                                        WHERE workouts_exercises_join.workout_id = $workout_id;
+                                        ";
+                    $results_exercises = $mysqli->query($sql_exercises);
+                    if (!$results_exercises) {
+                        echo $mysqli->error;
+                        $mysqli->close();
+                        exit();
+                    }            
+ 
+                    ?>
                     <div class="exercises">
                         <ol>
+                            <?php while($row_exercises = $results_exercises->fetch_assoc()):?>
                             <li>
-                                <p class="exercise">Barbell Squat</p>
+                                <p class="exercise"><?php echo $row_exercises['exercise_name'];?></p>
                                 <table class="table">
                                     <thead>
                                       <tr>
                                         <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        <th scope="col">4</th>
-                                        <th scope="col">5</th>
+                                        <?php 
+                                        $reps_arr = explode(",", $row_exercises['reps']);
+                                        $weight_arr = explode(",", $row_exercises['weight']);
+
+                                        for($i = 1; $i<=count($reps_arr); $i++) : ?>
+                                        <th scope="col"><?php echo $i ?></th>
+                                        <?php endfor; ?>
                                       </tr>
                                     </thead>
                                     <tbody>
                                       <tr>
                                         <th scope="row">Reps</th>
-                                        <td>12</td>
-                                        <td>10</td>
-                                        <td>8</td>
-                                        <td>6</td>
-                                        <td>5</td>
+                                        <?php foreach($reps_arr as $rep) : ?>
+                                        <td><?php echo $rep ?></td>
+                                        <?php endforeach; ?>
                                       </tr>
                                       <tr>
                                         <th scope="row">Weight</th>
-                                        <td>135</td>
-                                        <td>180</td>
-                                        <td>205</td>
-                                        <td>225</td>
-                                        <td>230</td>
+                                        <?php foreach($weight_arr as $weight): ?>
+                                        <td><?php echo $weight?></td>
+                                        <?php endforeach; ?>
                                       </tr>
                                     </tbody>
                                   </table>
                             </li>
-                            <li>
-                                <p class="exercise">Leg Curl</p>
-                                <table class="table">
-                                    <thead>
-                                      <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        <th scope="col">4</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>12</td>
-                                        <td>10</td>
-                                        <td>8</td>
-                                        <td>8</td>
-                                      </tr>
-                                      <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>100</td>
-                                        <td>115</td>
-                                        <td>115</td>
-                                        <td>120</td>
-                                      </tr>
-                                    </tbody>
-                                  </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Leg Extension</p>
-                                <table class="table">
-                                    <thead>
-                                      <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        <th scope="col">4</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>12</td>
-                                        <td>10</td>
-                                        <td>8</td>
-                                        <td>8</td>
-                                      </tr>
-                                      <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>100</td>
-                                        <td>105</td>
-                                        <td>110</td>
-                                        <td>110</td>
-                                      </tr>
-                                    </tbody>
-                                  </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Dumbbell Romanian Deadlifts</p>
-                                <table class="table">
-                                    <thead>
-                                      <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>12</td>
-                                        <td>10</td>
-                                      </tr>
-                                      <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>45</td>
-                                        <td>50</td>
-                                      </tr>
-                                      <tr>
-                                        <th scope="row">Notes</th>
-                                        <td>Lower back pain, cut sets short to 2 sets</td>
-                                        <td></td>
-                                    </tr>
-                                    </tbody>
-                                  </table>
-                            </li>
+                            <?php endwhile; ?>
                         </ol>
                     </div>
                 </div>
-                <div class="card p-3 mx-3 d-flex flex-column text-black">
-                    <h3>Back and Bicep Day</h3>
-                    <p>11/12/2022</p>
-                    <p>01:23:45</p>
-                    <div class="exercises">
-                        <ol>
-                            <li>
-                                <p class="exercise">Lat Pulldown</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Set #</th>
-                                            <th scope="col">1</th>
-                                            <th scope="col">2</th>
-                                            <th scope="col">3</th>
-                                            <th scope="col">4</th>
-                                            <th scope="col">5</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row">Reps</th>
-                                            <td>12</td>
-                                            <td>10</td>
-                                            <td>10</td>
-                                            <td>8</td>
-                                            <td>8</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">Weight</th>
-                                            <td>100</td>
-                                            <td>120</td>
-                                            <td>125</td>
-                                            <td>130</td>
-                                            <td>140</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Seated Rows</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Set #</th>
-                                            <th scope="col">1</th>
-                                            <th scope="col">2</th>
-                                            <th scope="col">3</th>
-                                            <th scope="col">4</th>
-                                            <th scope="col">5</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row">Reps</th>
-                                            <td>12</td>
-                                            <td>10</td>
-                                            <td>10</td>
-                                            <td>8</td>
-                                            <td>8</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">Weight</th>
-                                            <td>120</td>
-                                            <td>125</td>
-                                            <td>130</td>
-                                            <td>140</td>
-                                            <td>145</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Bicep Curl</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Set #</th>
-                                            <th scope="col">1</th>
-                                            <th scope="col">2</th>
-                                            <th scope="col">3</th>
-                                            <th scope="col">4</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row">Reps</th>
-                                            <td>12</td>
-                                            <td>10</td>
-                                            <td>10</td>
-                                            <td>8</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">Weight</th>
-                                            <td>22.5</td>
-                                            <td>27.5</td>
-                                            <td>27.5</td>
-                                            <td>30</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Hammer Curl</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Set #</th>
-                                            <th scope="col">1</th>
-                                            <th scope="col">2</th>
-                                            <th scope="col">3</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row">Reps</th>
-                                            <td>12</td>
-                                            <td>10</td>
-                                            <td>10</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">Weight</th>
-                                            <td>30</td>
-                                            <td>35</td>
-                                            <td>40</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Seated Unilateral Lat Pull</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Set #</th>
-                                            <th scope="col">1</th>
-                                            <th scope="col">2</th>
-                                            <th scope="col">3</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row">Reps</th>
-                                            <td>12</td>
-                                            <td>10</td>
-                                            <td>10</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">Weight</th>
-                                            <td>52.5</td>
-                                            <td>55</td>
-                                            <td>60</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Incline Bicep Curl</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Set #</th>
-                                            <th scope="col">1</th>
-                                            <th scope="col">2</th>
-                                            <th scope="col">3</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row">Reps</th>
-                                            <td>12</td>
-                                            <td>10</td>
-                                            <td>10</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">Weight</th>
-                                            <td>22.5</td>
-                                            <td>25</td>
-                                            <td>30</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                        </ol>
-                    </div>
-                </div>
-                <div class="card p-3 mx-3 d-flex flex-column text-black">
-                    <h3>Chest and Tricep Day</h3>
-                    <p>11/11/2022</p>
-                    <p>01:34:45</p>
-                    <div class="exercises">
-                        <ol>
-                            <li>
-                                <p class="exercise">Barbell Bench Press</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        <th scope="col">4</th>
-                                        <th scope="col">5</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>12</td>
-                                        <td>10</td>
-                                        <td>9</td>
-                                        <td>8</td>
-                                        <td>6</td>
-                                        </tr>
-                                        <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>135</td>
-                                        <td>155</td>
-                                        <td>175</td>
-                                        <td>180</td>
-                                        <td>180</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Incline Bench Press</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        <th scope="col">4</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>10</td>
-                                        <td>10</td>
-                                        <td>9</td>
-                                        <td>8</td>
-                                        </tr>
-                                        <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>50</td>
-                                        <td>55</td>
-                                        <td>60</td>
-                                        <td>70</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Crossbody Tricep Extension</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        <th scope="col">4</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>10</td>
-                                        <td>10</td>
-                                        <td>8</td>
-                                        <td>8</td>
-                                        </tr>
-                                        <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>20</td>
-                                        <td>23</td>
-                                        <td>23</td>
-                                        <td>27</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Chest Flys</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>10</td>
-                                        <td>10</td>
-                                        <td>8</td>
-                                        </tr>
-                                        <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>100</td>
-                                        <td>105</td>
-                                        <td>115</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Unilateral Tricep Extension</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>12</td>
-                                        <td>10</td>
-                                        <td>8</td>
-                                        </tr>
-                                        <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>20</td>
-                                        <td>22.5</td>
-                                        <td>25</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Chest Dips</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>12</td>
-                                        <td>10</td>
-                                        <td>10</td>
-                                        </tr>
-                                        <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>Body Weight</td>
-                                        <td>Body Weight</td>
-                                        <td>Body Weight</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                        </ol>
-                    </div>
-                </div>
-                <div class="card p-3 mx-3 d-flex flex-column text-black">
-                    <h3>Shoulders and Arms Day</h3>
-                    <p>11/09/2022</p>
-                    <p>01:43:12</p>
-                    <div class="exercises">
-                        <ol>
-                            <li>
-                                <p class="exercise">Shoulder Press</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        <th scope="col">4</th>
-                                        <th scope="col">5</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>12</td>
-                                        <td>10</td>
-                                        <td>9</td>
-                                        <td>8</td>
-                                        <td>6</td>
-                                        </tr>
-                                        <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>30</td>
-                                        <td>50</td>
-                                        <td>55</td>
-                                        <td>55</td>
-                                        <td>60</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Dumbbell Lateral Raises</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        <th scope="col">4</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>12</td>
-                                        <td>12</td>
-                                        <td>12</td>
-                                        <td>12</td>
-                                        </tr>
-                                        <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>20</td>
-                                        <td>20</td>
-                                        <td>20</td>
-                                        <td>20</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Crossbody Tricep Extension</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        <th scope="col">4</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>10</td>
-                                        <td>10</td>
-                                        <td>8</td>
-                                        <td>8</td>
-                                        </tr>
-                                        <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>20</td>
-                                        <td>23</td>
-                                        <td>23</td>
-                                        <td>27</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Cable Bicep Curl</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        <th scope="col">4</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>10</td>
-                                        <td>10</td>
-                                        <td>8</td>
-                                        <td>8</td>
-                                        </tr>
-                                        <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>20</td>
-                                        <td>23</td>
-                                        <td>23</td>
-                                        <td>27</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Cable Incline Bicep Curl</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>10</td>
-                                        <td>10</td>
-                                        <td>8</td>
-                                        </tr>
-                                        <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>23</td>
-                                        <td>23</td>
-                                        <td>27</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Unilateral Tricep Extensions</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>12</td>
-                                        <td>10</td>
-                                        <td>8</td>
-                                        </tr>
-                                        <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>20</td>
-                                        <td>22.5</td>
-                                        <td>25</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                            <li>
-                                <p class="exercise">Hammer Curl</p>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">Set #</th>
-                                        <th scope="col">1</th>
-                                        <th scope="col">2</th>
-                                        <th scope="col">3</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                        <th scope="row">Reps</th>
-                                        <td>12</td>
-                                        <td>10</td>
-                                        <td>8</td>
-                                        </tr>
-                                        <tr>
-                                        <th scope="row">Weight</th>
-                                        <td>35</td>
-                                        <td>35</td>
-                                        <td>40</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </li>
-                        </ol>
-                    </div>
-                </div>
+                <?php endwhile;?>
             </div>
         </div>
     </main>

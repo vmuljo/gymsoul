@@ -1,14 +1,14 @@
 <?php 
-require "config/config.php";
+// require "config/config.php";
 
-$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+// $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
-if ( $mysqli->connect_errno ) {
-    echo $mysqli->connect_error;
-    exit();
-}
+// if ( $mysqli->connect_errno ) {
+//     echo $mysqli->connect_error;
+//     exit();
+// }
 
-$mysqli->set_charset('utf8');
+// $mysqli->set_charset('utf8');
 
 $sql_muscle = "SELECT muscle, muscle_id FROM muscle_groups;";
 $results_muscle = $mysqli->query($sql_muscle);
@@ -139,8 +139,10 @@ $mysqli->close();
                 // may return undefined if other is selected, so check if not undefined to loop through. Otherwise, just fill in with the response
                 if(response.length !== undefined){
                     response.forEach(element => {
+                        console.log(element);
                         fillSelect(element);
                     });
+                    fillSelect({exercise: 'Other', id: response.length + 1})
                     // document.querySelector('#exercise-name').disabled=true;
                 } else{
                     fillSelect(response);
@@ -219,8 +221,7 @@ $mysqli->close();
         let weight = [];
 
         for (let set of addedSets){
-            console.log(set.querySelectorAll('td')[1].textContent);
-            reps.push(parseInt(set.querySelectorAll('td')[1].textContent));
+            reps.push(set.querySelectorAll('td')[1].textContent);
             weight.push(set.querySelectorAll('td')[2].textContent);
         }
 
@@ -277,11 +278,12 @@ $mysqli->close();
         let date = document.querySelector('#date').value.trim();
         let length = document.querySelector('#length').value.trim();
         let notes = document.querySelector('#notes').value.trim();
+        let user_id = 1; // temp. will change later
 
         $.ajax({
             url: 'ajax-backend/logged_workout.php',
             type: 'POST',
-            data: {workout_name: workoutName, date: date, length: length, views_count: views_count, notes: notes},
+            data: {workout_name: workoutName, date: date, length: length, views_count: views_count, user_id: user_id, notes: notes},
             success: (response) => {
                 console.log(response);
                 alert("Successfully added");

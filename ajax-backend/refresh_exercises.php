@@ -11,7 +11,7 @@ if ( $mysqli->connect_errno ) {
 $mysqli->set_charset('utf8');
 
 // delete the exercises currently in the exercises table
-$sql_delete = "DELETE FROM exercises WHERE exercise_id > 0;";
+$sql_delete = "DELETE FROM hold_exercises WHERE id > 0;";
 $results_delete = $mysqli->query($sql_delete);
 // check for sql errors
 if (!$results_delete) {
@@ -21,7 +21,7 @@ if (!$results_delete) {
 }
 
 // resets the ids in exercises to start back at 1
-$sql_resetindices = "ALTER TABLE exercises AUTO_INCREMENT=1;";
+$sql_resetindices = "ALTER TABLE hold_exercises AUTO_INCREMENT=1;";
 $results_reset = $mysqli->query($sql_resetindices);
 if (!$results_reset) {
     echo $mysqli->error;

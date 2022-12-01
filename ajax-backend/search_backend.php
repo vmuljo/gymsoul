@@ -10,14 +10,13 @@ if ( $mysqli->connect_errno ) {
 
 $mysqli->set_charset('utf8');
 
-// $sql = "SELECT workouts.name as name, workouts.date as date, workouts.length as length, workouts.id as id, 
-//                 FROM workouts_exercises_id
-//                 LEFT JOIN workouts
-//                 ON workouts_exercises_id.workout_id = workouts.id
-//                 LEFT JOIN exercises
-//                 ON workouts_exercises_id.exercise_id = exercises.id
-//                 WHERE 1 = 1";
-$sql = "SELECT * FROM workouts WHERE 1=1";
+$sql = "SELECT workouts.name as name, workouts.date as date, workouts.length as length, workouts.id as id,COUNT(*) as total_exercises 
+        FROM workouts_exercises_join
+        LEFT JOIN workouts
+        ON workouts_exercises_join.workout_id = workouts.id
+        LEFT JOIN exercises
+        ON workouts_exercises_join.exercise_id = exercises.exercise_id
+        WHERE 1=1";
 
 if ( isset($_POST['search_term']) && !empty($_POST['search_term']) ) {
     $search_term = $_POST['search_term'];
@@ -25,7 +24,7 @@ if ( isset($_POST['search_term']) && !empty($_POST['search_term']) ) {
     $sql = $sql . " AND workouts.name LIKE '%$search_term%'";
 }
 
-$sql = $sql . ";";
+$sql = $sql . " GROUP BY workouts_exercises_join.workout_id ORDER BY workouts.id DESC;";
 
 $results = $mysqli->query($sql);
 
@@ -41,5 +40,6 @@ $all_rows = $results->fetch_all(MYSQLI_ASSOC);
 
 $all_rows = json_encode($all_rows);
 echo $all_rows;
+//Error Code: 1054. Unknown column 'workouts_exercises_id.workout_id' in 'on clause'
 
 ?>

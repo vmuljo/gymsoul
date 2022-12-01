@@ -20,7 +20,9 @@ if (!$results_exercises) {
     echo $mysqli->error;
     $mysqli->close();
     exit();
-}            
+}
+
+$mysqli->close();
 
 $row_total = $results_exercises->fetch_assoc();
 

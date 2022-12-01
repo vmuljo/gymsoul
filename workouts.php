@@ -118,11 +118,11 @@ if (!$results_cards) {
             </div>
 
             <div class="container d-flex justify-content-around align-content-end flex-wrap" id="cards-list">
-                <div class="card text-black p-3 my-4 border border-primary" id="newWorkoutCard">
+                <div class="card text-black p-3 my-4 border border-primary" id="newWorkoutCard" onclick="addCardClicked()">
                     <h2 class="text-primary">+</h2>
                 </div>
                 <?php while ($row_cards = $results_cards->fetch_assoc()) : $workout_id = $row_cards['id'];?>
-                <div class="card text-black p-3 my-4 border border-light text-white loggedWorkoutCard" data-workout-id="<?php echo $workout_id; ?>">
+                <div class="card text-black p-3 my-4 border border-light text-white loggedWorkoutCard" onclick="cardClicked(this)" data-workout-id="<?php echo $workout_id; ?>">
                     <h4><?php echo $row_cards['name']; ?></h4>
                     <hr>
                     <p><?php echo $row_cards['date']; ?></p>
@@ -163,8 +163,7 @@ if (!$results_cards) {
             workoutModal.show();
         }
 
-        // show the log new workout modal when clicking the card with a +
-        document.getElementById('newWorkoutCard').onclick = () => {
+        function addCardClicked(){
             refresh();
             console.log(document.getElementById('newWorkout'))
             let workoutModal = new bootstrap.Modal(document.getElementById('newWorkout'), {
@@ -174,57 +173,51 @@ if (!$results_cards) {
             workoutModal.show();
         }
 
-        // show the logged workout modal when clicking on a card in workouts tab
-        // currently only has placeholder text from "Leg Day" for all the cards, as new modals are needed for each card and is a waste of memory. Will implement with PHP
-        Array.from(document.getElementsByClassName('loggedWorkoutCard')).forEach((logged) => {
-            logged.onclick = () => {
-                let workout_id = parseInt(logged.dataset.workoutId);
-                console.log(workout_id);
-                $.ajax({
-                    url: 'ajax-backend/get_workout.php',
-                    type: 'POST',
-                    dataType: 'json',
-                    data: {workout_id: logged.dataset.workoutId},
-                    success: (response) => {
-                        console.log(response);
-                        // alert("Successfully added");
-                        $('#loggedWorkoutLabel').html(response.name);
-                        $('#loggedDate').html(response.date);
-                        $('#loggedLength').html(response.length);
-                    },
-                    error: (e) => {
-                        alert('AJAX error');
-                        console.log(e);
-                    }
-                })
-                $.ajax({
-                    url: 'ajax-backend/get_exercises.php',
-                    type: 'POST',
-                    dataType: 'json',
-                    data: {workout_id: logged.dataset.workoutId},
-                    success: (response) => {
-                        console.log(response);
-                        // alert("Successfully added");
-                        document.querySelector('#exercise_list').innerHTML = '';
-                        response.forEach((exercise) => {
-                            fillTableSection(exercise);
-                        })
-                        
-                    },
-                    error: (e) => {
-                        alert('AJAX error');
-                        console.log(e);
-                    }
-                })
-                console.log(logged)
-                let loggedWorkout = new bootstrap.Modal(document.getElementById('loggedWorkout'), {
-                    keyboard: false
-                })
-            
-                loggedWorkout.show();
-            }
+        function cardClicked(card){
+            console.log(card);
+            $.ajax({
+                url: 'ajax-backend/get_workout.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {workout_id: card.dataset.workoutId},
+                success: (response) => {
+                    console.log(response);
+                    // alert("Successfully added");
+                    $('#loggedWorkoutLabel').html(response.name);
+                    $('#loggedDate').html(response.date);
+                    $('#loggedLength').html(response.length);
+                },
+                error: (e) => {
+                    alert('AJAX error');
+                    console.log(e);
+                }
+            })
+            $.ajax({
+                url: 'ajax-backend/get_exercises.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {workout_id: card.dataset.workoutId},
+                success: (response) => {
+                    console.log(response);
+                    // alert("Successfully added");
+                    document.querySelector('#exercise_list').innerHTML = '';
+                    response.forEach((exercise) => {
+                        fillTableSection(exercise);
+                    })
+                    
+                },
+                error: (e) => {
+                    alert('AJAX error');
+                    console.log(e);
+                }
+            })
+
+            let loggedWorkout = new bootstrap.Modal(document.getElementById('loggedWorkout'), {
+                keyboard: false
+            })
         
-        })
+            loggedWorkout.show();
+        }
 
         function fillTableSection(exercise){
             let li = document.createElement('li');
@@ -302,29 +295,14 @@ if (!$results_cards) {
                     let add = document.createElement('div');
                     add.classList.add('card','text-black','p-3','my-4','border','border-primary');
                     add.id = 'newWorkoutCard';
+                    add.setAttribute('onclick', 'addCardClicked()');
                     let h2 = document.createElement('h2');
                     h2.classList.add('text-primary');
                     h2.textContent = '+';
                     add.appendChild(h2);
                     document.querySelector('#cards-list').appendChild(add);
-
                     response.forEach((exercise) => {
-                        $.ajax({
-                            url: 'ajax-backend/get_total_exercises.php',
-                            type: 'POST',
-                            dataType: 'json',
-                            data: {workout_id: exercise.id},
-                            success: (response) => {
-                                console.log(response);
-                                // resets cards
-                                addCard(exercise, response.total_exercises);
-                            },
-                            error: (e) => {
-                                alert('AJAX error');
-                                console.log(e);
-                            }
-                        })
-                        
+                        addCard(exercise);
                     })
                     
                 },
@@ -335,10 +313,11 @@ if (!$results_cards) {
             })
         }
 
-        function addCard(exercise, total){
+        function addCard(exercise){
             let cardDiv = document.createElement('div');
             cardDiv.classList.add('card','text-black','p-3','my-4','border','border-light','text-white','loggedWorkoutCard');
             cardDiv.dataset.workoutId = exercise.id;
+            cardDiv.setAttribute('onclick', 'cardClicked(this)');
             
             let h4 = document.createElement('h4');
             let hr = document.createElement('hr');
@@ -349,7 +328,7 @@ if (!$results_cards) {
             h4.textContent = exercise.name;
             p_date.textContent = exercise.date;
             p_length.textContent = exercise.length;
-            p_total.textContent = "Total Exercises: " + total;
+            p_total.textContent = "Total Exercises: " + exercise.total_exercises;
 
             cardDiv.appendChild(h4);
             cardDiv.appendChild(hr);

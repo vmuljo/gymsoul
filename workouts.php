@@ -104,8 +104,8 @@ if (!$results_cards) {
                 </div>
     
                 <div id="search" class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Find Workout" aria-label="Recipient's username" aria-describedby="button-addon2">
-                    <button class="btn btn-outline-light" type="button" id="button-addon2">Search Workout</button>
+                    <input type="text" class="form-control" placeholder="Find Workout" aria-label="search" aria-describedby="search-button" id="search-field">
+                    <button class="btn btn-outline-light" type="button" id="search-button">Search Workout</button>
                 </div>
 
                 <div>
@@ -117,7 +117,7 @@ if (!$results_cards) {
                 </div>
             </div>
 
-            <div class="container d-flex justify-content-around align-content-end flex-wrap">
+            <div class="container d-flex justify-content-around align-content-end flex-wrap" id="cards-list">
                 <div class="card text-black p-3 my-4 border border-primary" id="newWorkoutCard">
                     <h2 class="text-primary">+</h2>
                 </div>
@@ -164,7 +164,7 @@ if (!$results_cards) {
         }
 
         // show the log new workout modal when clicking the card with a +
-        document.querySelector('#newWorkoutCard').onclick = () => {
+        document.getElementById('newWorkoutCard').onclick = () => {
             refresh();
             console.log(document.getElementById('newWorkout'))
             let workoutModal = new bootstrap.Modal(document.getElementById('newWorkout'), {
@@ -176,7 +176,7 @@ if (!$results_cards) {
 
         // show the logged workout modal when clicking on a card in workouts tab
         // currently only has placeholder text from "Leg Day" for all the cards, as new modals are needed for each card and is a waste of memory. Will implement with PHP
-        document.querySelectorAll('.loggedWorkoutCard').forEach((logged) => {
+        Array.from(document.getElementsByClassName('loggedWorkoutCard')).forEach((logged) => {
             logged.onclick = () => {
                 let workout_id = parseInt(logged.dataset.workoutId);
                 console.log(workout_id);
@@ -225,17 +225,6 @@ if (!$results_cards) {
             }
         
         })
-
-        /* 
-        "<br />
-<b>Notice</b>:  Undefined variable: results_cards in <b>/Users/victormuljo/Documents/itp304/gymsoul/ajax-backend/get_exercises.php</b> on line <b>28</b><br />
-<br />
-<b>Fatal error</b>:  Uncaught Error: Call to a member function fetch_all() on null in /Users/victormuljo/Documents/itp304/gymsoul/ajax-backend/get_exercises.php:28
-Stack trace:
-#0 {main}
-  thrown in <b>/Users/victormuljo/Documents/itp304/gymsoul/ajax-backend/get_exercises.php</b> on line <b>28</b><br />
-"
-        */
 
         function fillTableSection(exercise){
             let li = document.createElement('li');
@@ -298,23 +287,78 @@ Stack trace:
 
         }
 
-        // function cardClicked(workout_id){
+        document.querySelector('#search-button').onclick = () => {
+            var term = document.querySelector('#search-field').value.trim();
 
-        //     $.ajax({
-        //         url: 'logged-workout-modal.php',
-        //         type: 'POST',
-        //         data: {workout_id: workout_id},
-        //         success: (response) => {
-        //             console.log(response);
-        //             alert("Successfully added");
-        //         },
-        //         error: (e) => {
-        //             alert('AJAX error');
-        //             console.log(e);
-        //         }
-        //     })
-    
-        // }
+            $.ajax({
+                url: 'ajax-backend/search_backend.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {search_term: term},
+                success: (response) => {
+                    console.log(response);
+                    // resets cards
+                    document.querySelector('#cards-list').innerHTML = '';
+                    let add = document.createElement('div');
+                    add.classList.add('card','text-black','p-3','my-4','border','border-primary');
+                    add.id = 'newWorkoutCard';
+                    let h2 = document.createElement('h2');
+                    h2.classList.add('text-primary');
+                    h2.textContent = '+';
+                    add.appendChild(h2);
+                    document.querySelector('#cards-list').appendChild(add);
+
+                    response.forEach((exercise) => {
+                        $.ajax({
+                            url: 'ajax-backend/get_total_exercises.php',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {workout_id: exercise.id},
+                            success: (response) => {
+                                console.log(response);
+                                // resets cards
+                                addCard(exercise, response.total_exercises);
+                            },
+                            error: (e) => {
+                                alert('AJAX error');
+                                console.log(e);
+                            }
+                        })
+                        
+                    })
+                    
+                },
+                error: (e) => {
+                    alert('AJAX error');
+                    console.log(e);
+                }
+            })
+        }
+
+        function addCard(exercise, total){
+            let cardDiv = document.createElement('div');
+            cardDiv.classList.add('card','text-black','p-3','my-4','border','border-light','text-white','loggedWorkoutCard');
+            cardDiv.dataset.workoutId = exercise.id;
+            
+            let h4 = document.createElement('h4');
+            let hr = document.createElement('hr');
+            let p_date = document.createElement('p');
+            let p_length = document.createElement('p');
+            let p_total = document.createElement('p');
+
+            h4.textContent = exercise.name;
+            p_date.textContent = exercise.date;
+            p_length.textContent = exercise.length;
+            p_total.textContent = "Total Exercises: " + total;
+
+            cardDiv.appendChild(h4);
+            cardDiv.appendChild(hr);
+            cardDiv.appendChild(p_date);
+            cardDiv.appendChild(p_length);
+            cardDiv.appendChild(p_total);
+
+            document.querySelector('#cards-list').appendChild(cardDiv);
+        }
     </script>
 
 </body>

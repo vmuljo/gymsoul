@@ -24,27 +24,6 @@ if (!$results_slider) {
     exit();
 }
 
-// if($results_slider->num_rows == 0){
-//     // something to display no workouts logged
-// }
-
-// $row_slider = $results_slider->fetch_assoc();
-// $workout_id = $row_slider['id'];
-
-// then wants to use each workout id to get the exercises
-/* $sql_cards = "SELECT workout_id, exercise_id, muscle_groups.muscle as muscle, exercises.exercise_name as exercise_name, exercises.reps as reps, exercises.weight as weight
-            FROM workouts_exercises_join 
-            //LEFT JOIN workouts
-            //ON workouts.id = workouts_exercises_join.workout_id
-            LEFT JOIN exercises
-            ON exercises.exercise_id = workouts_exercises_join.exercise_id
-            LEFT JOIN muscle_groups
-            ON muscle_groups.muscle_id = exercises.muscle_group_id
-            WHERE workouts_exercises_join.workout_id = $workout_id;
-            ";*/
-
-// in the above sql statement, we take only the rows with certain workout id and also get muscle name, exercise name, reps, and weight into a table.
-// $mysqli->close();
 ?>
 
 <!DOCTYPE html>
@@ -178,7 +157,7 @@ if (!$results_slider) {
                                         $weight_arr = explode(",", $row_exercises['weight']);
 
                                         for($i = 1; $i<=count($reps_arr); $i++) : ?>
-                                        <th scope="col"><?php echo $i ?></th>
+                                        <th scope="col"><?php echo $i ;?></th>
                                         <?php endfor; ?>
                                       </tr>
                                     </thead>
@@ -186,13 +165,13 @@ if (!$results_slider) {
                                       <tr>
                                         <th scope="row">Reps</th>
                                         <?php foreach($reps_arr as $rep) : ?>
-                                        <td><?php echo $rep ?></td>
+                                        <td><?php echo $rep ;?></td>
                                         <?php endforeach; ?>
                                       </tr>
                                       <tr>
                                         <th scope="row">Weight</th>
                                         <?php foreach($weight_arr as $weight): ?>
-                                        <td><?php echo $weight?></td>
+                                        <td><?php echo $weight;?></td>
                                         <?php endforeach; ?>
                                       </tr>
                                     </tbody>

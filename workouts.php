@@ -1,3 +1,28 @@
+<?php 
+require "config/config.php";
+$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+if ( $mysqli->connect_errno ) {
+    echo $mysqli->connect_error;
+    exit();
+}
+
+$user_id = 1;
+
+$sql_cards = "SELECT *
+                FROM workouts 
+                WHERE user_id = $user_id 
+                ORDER BY id DESC;";
+
+$results_cards = $mysqli->query($sql_cards);
+if (!$results_cards) {
+    echo $mysqli->error;
+    $mysqli->close();
+    exit();
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -96,47 +121,35 @@
                 <div class="card text-black p-3 my-4 border border-primary" id="newWorkoutCard">
                     <h2 class="text-primary">+</h2>
                 </div>
-                <div class="card text-black p-3 my-4 border border-light text-white loggedWorkoutCard">
-                    <h4>Leg Day</h4>
+                <?php while ($row_cards = $results_cards->fetch_assoc()) : $workout_id = $row_cards['id'];?>
+                <div class="card text-black p-3 my-4 border border-light text-white loggedWorkoutCard" data-workout-id="<?php echo $workout_id; ?>">
+                    <h4><?php echo $row_cards['name']; ?></h4>
                     <hr>
-                    <p>11/13/2022</p>
-                    <p>00:57:40</p>
-                    <p>Total Exercises: 4</p>
+                    <p><?php echo $row_cards['date']; ?></p>
+                    <p><?php echo $row_cards['length']; ?></p>
+                    <?php  
+                    // $workout_id = $row_cards['id'];
+                    $sql_exercises = "SELECT workouts_exercises_join.workout_id, COUNT(*) as total_exercises
+                                        FROM workouts_exercises_join 
+                                        WHERE workouts_exercises_join.workout_id = $workout_id 
+                                        GROUP BY workouts_exercises_join.workout_id;
+                                        ";
+                    $results_exercises = $mysqli->query($sql_exercises);
+                    if (!$results_exercises) {
+                        echo $mysqli->error;
+                        $mysqli->close();
+                        exit();
+                    }            
+                    ?>
+                    <p>Total Exercises: <?php echo $results_exercises->fetch_assoc()['total_exercises']; ?></p>
                 </div>
-                <div class="card text-black p-3 my-4 border border-light text-white loggedWorkoutCard">
-                    <h4>Back and Bicep Day</h4>
-                    <hr>
-                    <p>11/12/2022</p>
-                    <p>01:23:45</p>
-                    <p>Total Exercises: 6</p>
-                </div>
-                <div class="card text-black p-3 my-4 border border-light text-white loggedWorkoutCard">
-                    <h4>Chest and Tricep Day</h4>
-                    <hr>
-                    <p>11/11/2022</p>
-                    <p>01:34:45</p>
-                    <p>Total Exercises: 6</p>
-                </div>
-                <div class="card text-black p-3 my-4 border border-light text-white loggedWorkoutCard">
-                    <h4>Shoulders and Arms Day</h4>
-                    <hr>
-                    <p>11/09/2022</p>
-                    <p>01:43:12</p>
-                    <p>Total Exercises: 7</p>
-                </div>
-                <div class="card text-black p-3 my-4 border border-light text-white loggedWorkoutCard">
-                    <h4>Chest and Back Day</h4>
-                    <hr>
-                    <p>11/07/2022</p>
-                    <p>01:37:20</p>
-                    <p>Total Exercises: 7</p>
-                </div>
+                <?php endwhile;?>
             </div>
         </div>
     </main>
-    
-    <?php include "new-workout-modal.php";?>
+
     <?php include "logged-workout-modal.php";?>
+    <?php include "new-workout-modal.php";?>
 
     <script src="refresh-exercises.js"></script>
     <script>
@@ -165,6 +178,44 @@
         // currently only has placeholder text from "Leg Day" for all the cards, as new modals are needed for each card and is a waste of memory. Will implement with PHP
         document.querySelectorAll('.loggedWorkoutCard').forEach((logged) => {
             logged.onclick = () => {
+                let workout_id = parseInt(logged.dataset.workoutId);
+                console.log(workout_id);
+                $.ajax({
+                    url: 'ajax-backend/get_workout.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {workout_id: logged.dataset.workoutId},
+                    success: (response) => {
+                        console.log(response);
+                        // alert("Successfully added");
+                        $('#loggedWorkoutLabel').html(response.name);
+                        $('#loggedDate').html(response.date);
+                        $('#loggedLength').html(response.length);
+                    },
+                    error: (e) => {
+                        alert('AJAX error');
+                        console.log(e);
+                    }
+                })
+                $.ajax({
+                    url: 'ajax-backend/get_exercises.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {workout_id: logged.dataset.workoutId},
+                    success: (response) => {
+                        console.log(response);
+                        // alert("Successfully added");
+                        document.querySelector('#exercise_list').innerHTML = '';
+                        response.forEach((exercise) => {
+                            fillTableSection(exercise);
+                        })
+                        
+                    },
+                    error: (e) => {
+                        alert('AJAX error');
+                        console.log(e);
+                    }
+                })
                 console.log(logged)
                 let loggedWorkout = new bootstrap.Modal(document.getElementById('loggedWorkout'), {
                     keyboard: false
@@ -174,6 +225,96 @@
             }
         
         })
+
+        /* 
+        "<br />
+<b>Notice</b>:  Undefined variable: results_cards in <b>/Users/victormuljo/Documents/itp304/gymsoul/ajax-backend/get_exercises.php</b> on line <b>28</b><br />
+<br />
+<b>Fatal error</b>:  Uncaught Error: Call to a member function fetch_all() on null in /Users/victormuljo/Documents/itp304/gymsoul/ajax-backend/get_exercises.php:28
+Stack trace:
+#0 {main}
+  thrown in <b>/Users/victormuljo/Documents/itp304/gymsoul/ajax-backend/get_exercises.php</b> on line <b>28</b><br />
+"
+        */
+
+        function fillTableSection(exercise){
+            let li = document.createElement('li');
+            let exercise_name = document.createElement('p');
+            exercise_name.classList.add('exercise');
+            let table = document.createElement('table');
+            table.classList.add('table');
+
+            // thead section
+            let thead = document.createElement('thead');
+            let tr_head = document.createElement('tr');
+            let th_set = document.createElement('th');
+            th_set.scope = 'col';
+            th_set.textContent = 'Set #';
+            tr_head.appendChild(th_set);
+
+            let reps_arr = exercise.reps.split(',');
+            let weight_arr = exercise.weight.split(',');
+
+            for(let i = 1; i<=reps_arr.length; i++){
+                let th_setnum = document.createElement('th');
+                th_setnum.scope = 'col';
+                th_setnum.textContent = i;
+                tr_head.appendChild(th_setnum);
+            }
+            thead.appendChild(tr_head);
+
+            // tbody section
+            let tbody = document.createElement('tbody');
+            let tr_reps = document.createElement('tr');
+            let th_reps = document.createElement('th');
+            th_reps.scope = 'row';
+            th_reps.textContent = "Reps"
+            tr_reps.appendChild(th_reps);
+            reps_arr.forEach((rep) => {
+                let td_rep = document.createElement('td');
+                td_rep.textContent = rep;
+                tr_reps.appendChild(td_rep);
+            });
+            let tr_weight = document.createElement('tr');
+            let th_weight = document.createElement('th');
+            th_weight.scope = 'row';
+            th_weight.textContent = "Weight";
+            tr_weight.appendChild(th_weight);
+            weight_arr.forEach((weight) => {
+                let td_weight = document.createElement('td');
+                td_weight.textContent = weight;
+                tr_weight.appendChild(td_weight);
+            });
+            tbody.appendChild(tr_reps);
+            tbody.appendChild(tr_weight);
+
+            table.appendChild(thead);
+            table.appendChild(tbody);
+
+            li.appendChild(exercise_name);
+            li.appendChild(table);
+
+            document.querySelector('#exercise_list').appendChild(li);
+
+        }
+
+        // function cardClicked(workout_id){
+
+        //     $.ajax({
+        //         url: 'logged-workout-modal.php',
+        //         type: 'POST',
+        //         data: {workout_id: workout_id},
+        //         success: (response) => {
+        //             console.log(response);
+        //             alert("Successfully added");
+        //         },
+        //         error: (e) => {
+        //             alert('AJAX error');
+        //             console.log(e);
+        //         }
+        //     })
+    
+        // }
     </script>
 
 </body>

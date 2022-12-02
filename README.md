@@ -1,10 +1,9 @@
-# gymsoul
-GymSoul Website
+# Gym Soul
 
-Create DONE
-Read DONE
-Update (TO DO)
-Delete DONE
+- Create DONE
+- Read DONE
+- Update (TO DO)
+- Delete DONE
 
 TO DOs:
 - Update exercise info from workouts
@@ -12,6 +11,10 @@ TO DOs:
 - Log in/out SESSION pages n stuff
 - Create account page
 
-What we (will) have for extras:
+What we (wil-l) have for extras:
 - Sessions (soon)
 - Permission levels (users)
+
+Future changes:
+- Refactor into React with Node JS
+- Add mental health scale

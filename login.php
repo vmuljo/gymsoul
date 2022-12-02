@@ -1,3 +1,87 @@
+<?php
+	session_start();
+	require "config/config.php";
+
+	if ( isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true ) {
+		// User IS logged in.
+		header('Location: home.php');
+	} else {
+		// User is NOT logged in.
+
+		if ( isset($_POST['email']) && isset($_POST['password'])) {
+			// The form was submitted.
+
+			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+			if($mysqli->connect_errno) {
+				echo $mysqli->connect_error;
+				exit();
+			}
+
+			$email = $_POST['email'];
+			$password = $_POST['password'];
+
+			$email = $mysqli->escape_string($email);
+			$password = $mysqli->escape_string($password);
+
+			// $password = hash('sha256', $password);
+
+			$sql_email = "SELECT * FROM user_info WHERE email = '$email';";
+
+			$results_email = $mysqli->query($sql_email);
+
+			if (!$results_email) {
+				echo $mysqli->error;
+				$mysqli->close();
+				exit();
+			}
+
+      $sql_password = "SELECT * FROM user_info WHERE password = '$password';";
+
+			$results_password = $mysqli->query($sql_password);
+
+			if (!$results_password) {
+				echo $mysqli->error;
+				$mysqli->close();
+				exit();
+			}
+
+			$mysqli->close();
+
+			if ( $results_email->num_rows == 1 && $results_password->num_rows==1) {
+				// Valid credentials.
+
+				$_SESSION['logged_in'] = true;
+				$_SESSION['email'] = $_POST['email'];
+        $_SESSION['user_id'] = $_POST['user_id'];
+
+				header('Location: home.php');
+
+			} else{
+        if($results_email->num_rows != 1){
+          $error_email = "$results_email->num_rows";
+        }
+				if($results_password->num_rows != 1){
+          $error_password = "Invalid password.";
+        }
+
+			}
+
+		} else {
+      if(isset($_POST['email']) && trim($_POST['email']) == ""){
+        $error_email = "Email cannot be empty.";
+      }
+      if(isset($_POST['password']) && trim($_POST['password']) == ""){
+        $error_password = "Password cannot be empty.";
+      }
+      // $error_email = $_POST;
+      
+    }
+
+	}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,22 +100,28 @@
 <body class="bg-dark text-white d-flex align-items-center">
   <div class="card d-flex  p-3 justify-content-center">
     <h2>Welcome to Gym Soul</h2> <!-- some title -->
-    <form method="POST" action="home.html" class="d-flex flex-column">
+    <form method="POST" action="login.php" class="d-flex flex-column">
         <div class="form-group my-3">
             <label for="email" >Email:</label>
             <input name="email" class="form-control" type="email" id="email" />
-            <small id="email-error" class="invalid-feedback">Email is required.</small>
+            <?php if ( !empty($error_email) ) : ?>
+						<small id="email-error" class="text-danger"><?php echo $error_email; ?></small>
+					  <?php endif; ?>
+            
         </div>
         <div class="form-group mb-3">
             <label for="password">Password:</label>
             <input name="password" class="form-control" type="password" id="password"/>
-            <small id="password-error" class="invalid-feedback">Password is required.</small>
+            <?php if ( !empty($error_password) ) : ?>
+              <small id="password-error" class="text-danger"><?php echo $error_password; ?></small>
+					  <?php endif; ?>
+            
           </div>
         
         <button type="submit" class="btn btn-primary my-3">Log in</button>
         <p class="my-2">Don't have an account? <a href="signup.html">Sign up here.</a></p>
     </form>
   </div>
-  <script src="login.js" ></script>
+  <!-- <script src="login.js" ></script> -->
 </body>
 </html>

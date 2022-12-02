@@ -65,7 +65,7 @@ if (isset($_POST['notes']) && trim($_POST['notes']) != ''){
 }
 $results_workouts = $mysqli->query($sql_workouts);
 if (!$results_workouts) {
-    echo "insert into workouts error";
+    var_dump($_POST['date']);
     echo $mysqli->error;
     $mysqli->close();
     exit();

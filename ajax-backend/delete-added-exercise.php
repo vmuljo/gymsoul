@@ -13,6 +13,14 @@ $mysqli->set_charset('utf8');
 
 $id = $_POST['exercise_id'];
 
-$sql = "DELETE FROM exercises WHERE exercises.exercise_id = $id;";
+$sql = "DELETE FROM hold_exercises WHERE id = $id;";
+$results = $mysqli->query($sql);
 
+if (!$results) {
+    echo $mysqli->error;
+    $mysqli->close();
+    exit();
+}
+
+$mysqli->close();
 ?>

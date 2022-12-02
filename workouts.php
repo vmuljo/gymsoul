@@ -100,21 +100,21 @@ if (!$results_cards) {
             
             <div class="d-flex justify-content-around my-3">
                 <div>
-                    <button type="button" class="btn btn-primary" id="newWorkoutButton">Log a new Workout</button>
+                    <button type="button" class="btn btn-primary" id="newWorkoutButton" onclick="addCardClicked()">Log a new Workout</button>
                 </div>
     
                 <div id="search" class="input-group mb-3">
                     <input type="text" class="form-control" placeholder="Find Workout" aria-label="search" aria-describedby="search-button" id="search-field">
                     <button class="btn btn-outline-light" type="button" id="search-button">Search Workout</button>
                 </div>
-
-                <div>
+                
+                <!-- Select to sort by latest or earliest, no time to implement -->
+                <!-- <div>
                     <select id="select" class="form-select text-white" aria-label="Default select example">
-                        <option selected>Latest</option>
-                        <option value="1">Earliest</option>
-                        <!-- <option value="2">Date</option> -->
+                        <option value="1" selected>Latest</option>
+                        <option value="2">Earliest</option>
                     </select>
-                </div>
+                </div> -->
             </div>
 
             <div class="container d-flex justify-content-around align-content-end flex-wrap" id="cards-list">
@@ -148,31 +148,78 @@ if (!$results_cards) {
         </div>
     </main>
 
-    <?php include "logged-workout-modal.php";?>
+    <!-- Logged workout modal -->
+    <div class="modal fade" id="loggedWorkout" tabindex="-1" aria-labelledby="loggedWorkoutLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="loggedWorkoutLabel"></h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Date: </strong><span id="loggedDate"></span> </p>
+                    <p><strong>Length of Workout: </strong><span id="loggedLength"></span></p>
+                    <div class="exercises">
+                        <ol id="exercise_list">
+                        
+                        </ol>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <div class="changebtns">
+                        <button type="button" class="btn btn-danger" onclick="deleteWorkout(this)">Delete</button>
+                        <button type="button" class="btn btn-warning" onclick="editWorkoutModal(this)">Edit</button>
+                    </div>
+                
+                <button type="button" class="btn btn-secondary " data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Workout Modal -->
+    <div class="modal fade" id="editWorkout" tabindex="-1" aria-labelledby="editWorkoutLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content" data-id="">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editWorkoutLabel">Edit Workout</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" id="editSubmit">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="edit-workout-name" placeholder="workout Name">
+                            <label for="edit-workout-name">Workout Name</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="date" class="form-control" id="edit-date" placeholder="date">
+                            <label for="edit-date">Date</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="edit-length" placeholder="workout length">
+                            <label for="edit-length">Workout Length</label>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Save workout</button>
+                        </div>
+                    </form>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
     <?php include "new-workout-modal.php";?>
 
-    <script src="refresh-exercises.js"></script>
+    <script src="scripts/refresh-exercises.js"></script>
     <script>
-        document.querySelector("#newWorkoutButton").onclick = () => {
-            refresh();
-            console.log(document.getElementById('newWorkout'))
-            let workoutModal = new bootstrap.Modal(document.getElementById('newWorkout'), {
-                keyboard: false
-            })
-
-            workoutModal.show();
-        }
-
+        // show the log new workout modal 
         function addCardClicked(){
             refresh();
-            console.log(document.getElementById('newWorkout'))
-            let workoutModal = new bootstrap.Modal(document.getElementById('newWorkout'), {
-                keyboard: false
-            })
-
-            workoutModal.show();
+            $('#newWorkout').modal('show');
         }
 
+        // show the logged workout modal when clicking on a card in workouts tab
         function cardClicked(card){
             console.log(card);
             $.ajax({
@@ -186,6 +233,7 @@ if (!$results_cards) {
                     $('#loggedWorkoutLabel').html(response.name);
                     $('#loggedDate').html(response.date);
                     $('#loggedLength').html(response.length);
+                    document.querySelector('.modal-content').dataset.id = response.id;
                 },
                 error: (e) => {
                     alert('AJAX error');
@@ -212,11 +260,7 @@ if (!$results_cards) {
                 }
             })
 
-            let loggedWorkout = new bootstrap.Modal(document.getElementById('loggedWorkout'), {
-                keyboard: false
-            })
-        
-            loggedWorkout.show();
+            $('#loggedWorkout').modal('show');
         }
 
         function fillTableSection(exercise){
@@ -338,6 +382,130 @@ if (!$results_cards) {
 
             document.querySelector('#cards-list').appendChild(cardDiv);
         }
+
+        function deleteWorkout(btn){
+            console.log(btn.parentNode.parentNode.parentNode.dataset.id)
+            $.ajax({
+                url: 'ajax-backend/delete-workout.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {workout_id: btn.parentNode.parentNode.parentNode.dataset.id},
+                success: (response) => {
+                    console.log(response);
+
+                    document.querySelector('#cards-list').innerHTML = '';
+                    let add = document.createElement('div');
+                    add.classList.add('card','text-black','p-3','my-4','border','border-primary');
+                    add.id = 'newWorkoutCard';
+                    add.setAttribute('onclick', 'addCardClicked()');
+                    let h2 = document.createElement('h2');
+                    h2.classList.add('text-primary');
+                    h2.textContent = '+';
+                    add.appendChild(h2);
+                    document.querySelector('#cards-list').appendChild(add);
+                    response.forEach((exercise) => {
+                        addCard(exercise);
+                    })
+
+                    
+                },
+                error: (e) => {
+                    alert('AJAX error');
+                    console.log(e);
+                }
+            })
+
+            $('#loggedWorkout').modal('hide');
+            // ajax stuff to delete the button
+            // btn.parentNode.remove();"Cannot delete or update a parent row: a foreign key constraint fails (`muljo_gym_soul_db`.`workouts_exercises_join`, CONSTRAINT `fk_workouts_exercises_join_workouts1` FOREIGN KEY (`workout_id`) REFERENCES `workouts` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION)"
+        }
+
+        function editWorkoutModal(workout){
+            $.ajax({
+                url: 'ajax-backend/get_workout.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {workout_id: workout.parentNode.parentNode.parentNode.dataset.id},
+                success: (response) => {
+                    console.log(response);
+                    // alert("Successfully added");
+                    $('#edit-workout-name').val(response.name);
+                    $('#edit-date').val(response.date);
+                    $('#edit-length').val(response.length);
+                    document.querySelector('.modal-content').dataset.id = response.id;
+                },
+                error: (e) => {
+                    alert('AJAX error');
+                    console.log(e);
+                }
+            })
+            $('#loggedWorkout').modal('hide');
+            $('#editWorkout').modal('show');
+        }
+
+        document.querySelector("#editSubmit").onsubmit = () => {
+        // function editWorkoutSubmit(){
+            let name = $('#edit-workout-name').val();
+            let date = $('#edit-date').val();
+            let length = $('#edit-length').val();
+            let id = document.querySelector('.modal-content').dataset.id;
+
+            $.ajax({
+                url: 'ajax-backend/edit-workout.php',
+                type: 'POST',
+                dataType: "json",
+                data: {name: name, date: date, length: length, workout_id: id},
+                success: (response) => {
+                    console.log(response);
+
+                    $('#loggedWorkoutLabel').html(response.name);
+                    $('#loggedDate').html(response.date);
+                    $('#loggedLength').html(response.length);
+                    $('#editWorkout').modal('hide');
+                    $('#loggedWorkout').modal('show');
+
+                },
+                error: (e) => {
+                    alert('AJAX error');
+                    console.log(e);
+                }
+            })
+
+            return false;
+        }
+
+        $("#loggedWorkout").on("hidden.bs.modal", function () {
+            $.ajax({
+                url: 'ajax-backend/modal-close.php',
+                type: 'POST',
+                dataType: 'json',
+
+                success: (response) => {
+                    console.log(response);
+
+                    document.querySelector('#cards-list').innerHTML = '';
+                    let add = document.createElement('div');
+                    add.classList.add('card','text-black','p-3','my-4','border','border-primary');
+                    add.id = 'newWorkoutCard';
+                    add.setAttribute('onclick', 'addCardClicked()');
+                    let h2 = document.createElement('h2');
+                    h2.classList.add('text-primary');
+                    h2.textContent = '+';
+                    add.appendChild(h2);
+                    document.querySelector('#cards-list').appendChild(add);
+                    response.forEach((exercise) => {
+                        addCard(exercise);
+                    })
+
+                    
+                },
+                error: (e) => {
+                    alert('AJAX error');
+                    console.log(e);
+                }
+            })
+        });
+        
     </script>
 
 </body>

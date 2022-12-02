@@ -27,7 +27,7 @@ if (!$results) {
     exit();
 }
 
-$sql_latest = "SELECT muscle_groups.muscle as muscle, exercise_name, reps, weight 
+$sql_latest = "SELECT id, muscle_groups.muscle as muscle, exercise_name, reps, weight 
                 FROM hold_exercises 
                 LEFT JOIN muscle_groups
                 ON muscle_groups.muscle_id = hold_exercises.muscle_group_id

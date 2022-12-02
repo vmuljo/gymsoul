@@ -29,13 +29,13 @@ $mysqli->close();
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="#">
+                <form method="POST" id="newSubmit">
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="workout-name" placeholder="workout Name">
                         <label for="workout-name">Workout Name</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="date" class="form-control" id="date" placeholder="date">
+                        <input type="date" class="form-control" id="date" placeholder="date" onchange="console.log(this.value)">
                         <label for="date">Date</label>
                     </div>
                     <div class="form-floating mb-3">
@@ -85,11 +85,6 @@ $mysqli->close();
                             <div class="d-flex justify-content-center"><button type="button" class="btn btn-outline-primary" onclick="addNewExerciseClicked()">Add New Exercise</button></div>
                         </div>
                     </div>
-
-                    
-                    
-                    <!-- <hr> -->
-
                     <div class="card p-3 my-3">
                         <h4 class="mb-3">Added Exercises</h4>
                         <div class="input-group">
@@ -99,6 +94,7 @@ $mysqli->close();
                         <table class="table">
                             <thead>
                             <tr>
+                                <th scope="col"></th>
                                 <th scope="col">Muscle</th>
                                 <th scope="col">Workout</th>
                                 <th scope="col">Reps</th>
@@ -108,15 +104,17 @@ $mysqli->close();
                             <tbody id="addedExercises">
                             </tbody>
                         </table>
+                    </div>     
+                    <div class="d-flex justify-content-end">
+                    <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                    <button type="submit" class="btn btn-primary">Save workout</button>
                     </div>
-                    
-                    
                 </form>
             </div>
-            <div class="modal-footer">
+            <!-- <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary" onclick="loggedWorkoutClicked()">Log it!</button>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>
@@ -142,7 +140,6 @@ $mysqli->close();
                         console.log(element);
                         fillSelect(element);
                     });
-                    fillSelect({exercise: 'Other', id: response.length + 1})
                     // document.querySelector('#exercise-name').disabled=true;
                 } else{
                     fillSelect(response);
@@ -235,18 +232,28 @@ $mysqli->close();
             dataType: 'json', // parses 
             success: (response) => {
                 console.log(response);
-                alert("Successfully added");
+                // alert("Successfully added");
 
                 let tr = document.createElement('tr');
+                let td_delete = document.createElement('td');
+                let deleteBtn = document.createElement('a');
                 let td_muscle = document.createElement('td');
                 let td_workout = document.createElement('td');
                 let td_reps = document.createElement('td');
                 let td_weight = document.createElement('td');
 
+                // deleteBtn.classList.add('btn','btn-link');
+                // deleteBtn.type = 'button'
+                deleteBtn.innerHTML = "&#10006;";
+                deleteBtn.style.cssText = 'cursor:pointer;'
+                deleteBtn.setAttribute('onclick', 'deleteExerciseClicked(this)');
+                td_delete.appendChild(deleteBtn);
                 td_muscle.textContent = response.muscle;
                 td_workout.textContent = response.exercise_name;
                 td_reps.textContent = response.reps;
                 td_weight.textContent = response.weight;
+                tr.dataset.id = response.id;
+                tr.appendChild(td_delete);
                 tr.appendChild(td_muscle);
                 tr.appendChild(td_workout);
                 tr.appendChild(td_reps);
@@ -272,28 +279,59 @@ $mysqli->close();
         btn.parentNode.remove();
     }
 
-    let views_count = 0;
-    function loggedWorkoutClicked(){
-        let workoutName = document.querySelector('#workout-name').value.trim();
-        let date = document.querySelector('#date').value.trim();
-        let length = document.querySelector('#length').value.trim();
-        let notes = document.querySelector('#notes').value.trim();
-        let user_id = 1; // temp. will change later
-
+    function deleteExerciseClicked(btn){
+        console.log("Exercise clicked");
         $.ajax({
-            url: 'ajax-backend/logged_workout.php',
+            url: 'ajax-backend/delete-added-exercise.php',
             type: 'POST',
-            data: {workout_name: workoutName, date: date, length: length, views_count: views_count, user_id: user_id, notes: notes},
+            data: {exercise_id: btn.parentNode.parentNode.dataset.id},
             success: (response) => {
                 console.log(response);
-                alert("Successfully added");
-                views_count++;
+                console.log(btn.parentNode.parentNode);
+                // alert("Successfully added");
+                btn.parentNode.parentNode.remove();
             },
             error: (e) => {
                 alert('AJAX error');
                 console.log(e);
             }
         })
+        // ajax stuff to delete the button
+        // btn.parentNode.remove();
+    }
+
+    document.querySelector('#newSubmit').onsubmit = () => {
+    // function loggedWorkoutClicked(){
+        let workoutName = document.querySelector('#workout-name').value.trim();
+        let date = document.querySelector('#date').value;
+        let length = document.querySelector('#length').value.trim();
+        let notes = document.querySelector('#notes').value.trim();
+        let user_id = 1; // temp. will change later
+
+        console.log(workoutName);
+        console.log(date);
+
+        $.ajax({
+            url: 'ajax-backend/logged_workout.php',
+            type: 'POST',
+            data: {workout_name: workoutName, date: date, length: length, user_id: user_id, notes: notes},
+            success: (response) => {
+                console.log(response);
+                $('#newWorkout').modal('hide');
+                
+            },
+            error: (e) => {
+                alert('AJAX error');
+                console.log(e);
+            }
+        })
+
+        // reload the page so i dont have to :p
+        $(this).ajaxStop(function(){
+            window.location.reload();
+        });
+
+        return false;
     }
 
 </script>

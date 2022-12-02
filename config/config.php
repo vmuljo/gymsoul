@@ -1,4 +1,5 @@
 <?php
+	// session_start();
 
 	define("DB_HOST", "304.itpwebdev.com");
 	define("DB_USER", "muljo_db_user");

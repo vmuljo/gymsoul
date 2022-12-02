@@ -4,10 +4,10 @@ GymSoul Website
 Create DONE
 Read DONE
 Update (TO DO)
-Delete (TO DO) (technically have when we delete the holding table)
+Delete DONE
 
 TO DOs:
-- Update and Delete to delete exercises and workouts from data base (must update all other tables with it too)
+- Update exercise info from workouts
 - Project summary
 - Log in/out SESSION pages n stuff
 - Create account page

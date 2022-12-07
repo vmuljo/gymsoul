@@ -8,7 +8,8 @@ if ( $mysqli->connect_errno ) {
 }
 
 $mysqli->set_charset('utf8');
-$user_id = $_POST['user_id'];
+$user_id = 1;
+// $user_id = $_SESSION['user_id'];
 /*
 $sql_workouts = "SELECT * FROM workouts (LEFT JOIN stuff) WHERE user_id = $user_id;
 

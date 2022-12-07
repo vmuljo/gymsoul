@@ -306,7 +306,7 @@ $mysqli->close();
         let date = document.querySelector('#date').value;
         let length = document.querySelector('#length').value.trim();
         let notes = document.querySelector('#notes').value.trim();
-        let user_id = 1; // temp. will change later
+//         let user_id = 1; // temp. will change later
 
         console.log(workoutName);
         console.log(date);
@@ -314,7 +314,7 @@ $mysqli->close();
         $.ajax({
             url: 'ajax-backend/logged_workout.php',
             type: 'POST',
-            data: {workout_name: workoutName, date: date, length: length, user_id: user_id, notes: notes},
+            data: {workout_name: workoutName, date: date, length: length, notes: notes},
             success: (response) => {
                 console.log(response);
                 $('#newWorkout').modal('hide');

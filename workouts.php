@@ -8,6 +8,7 @@ if ( $mysqli->connect_errno ) {
 }
 
 $user_id = 1;
+// $user_id = $_SESSION['user_id'];
 
 $sql_cards = "SELECT *
                 FROM workouts 

@@ -119,7 +119,7 @@
           </div>
         
         <button type="submit" class="btn btn-primary my-3">Log in</button>
-        <p class="my-2">Don't have an account? <a href="signup.html">Sign up here.</a></p>
+        <p class="my-2">Don't have an account? <a href="signup.php">Sign up here.</a></p>
     </form>
   </div>
   <!-- <script src="login.js" ></script> -->

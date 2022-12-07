@@ -326,7 +326,7 @@ $mysqli->close();
             }
         })
 
-        // reload the page so i dont have to :p
+        // reload the page
         $(this).ajaxStop(function(){
             window.location.reload();
         });

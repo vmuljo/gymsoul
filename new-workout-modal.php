@@ -306,7 +306,6 @@ $mysqli->close();
         let date = document.querySelector('#date').value;
         let length = document.querySelector('#length').value.trim();
         let notes = document.querySelector('#notes').value.trim();
-//         let user_id = 1; // temp. will change later
 
         console.log(workoutName);
         console.log(date);

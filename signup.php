@@ -1,69 +1,79 @@
 <?php
 
 require 'config/config.php';
-session_start();
 
-if ( !isset($_POST['email']) || trim($_POST['email'] == '')
-    || !isset($_POST['firstname']) || trim($_POST['firstname'] == '')
-    || !isset($_POST['lastname']) || trim($_POST['lastname'] == '')
-	|| !isset($_POST['password']) || trim($_POST['password'] == '')
-    || !isset($_POST['confirmpassword']) || trim($_POST['confirmpassword'] == ''))  {
-	$error = "Please fill out all required fields.";
-} else {
-	// All required fields were provided.
-	if($_POST['password'] != $_POST['confirmpassword']){
-		$error = "Passwords do not match";
-	}else{
+// Form submitted
+if ( isset($_POST['email']) && isset($_POST['firstname']) && isset($_POST['lastname'])
+    && isset($_POST['password']) && isset($_POST['confirmpassword']) && isset($_POST['accepted']))  {
+      // check for empty fields
+    if(trim($_POST['password']) == "" || trim($_POST['confirmpassword']) == "" || trim($_POST['email']) == "" ||
+    trim($_POST['firstname']) == "" || trim($_POST['lastname']) == "" || $_POST['accepted'] != "yes"){
+      $error = "Please fill out all the required fields.";
+    }
+    else {
+      // check if passwords match
+      if($_POST['password'] != $_POST['confirmpassword']){
+        $error = "Passwords do not match";
+      }else{
 
-		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
-		if($mysqli->connect_errno) {
-			echo $mysqli->connect_error;
-			exit();
-		}
+        if($mysqli->connect_errno) {
+          echo $mysqli->connect_error;
+          exit();
+        }
 
-		$firstname = $_POST['firstname'];
-		$lastname = $_POST['lastname'];
-		$email = $_POST['email'];
-		$password = $_POST['password'];
-		$confirmpassword = $_POST['confirmpassword'];
+        $firstname = $_POST['firstname'];
+        $lastname = $_POST['lastname'];
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+        $confirmpassword = $_POST['confirmpassword'];
 
-		$firstname = $mysqli->escape_string($firstname);
-		$lastname = $mysqli->escape_string($lastname);
-		$email = $mysqli->escape_string($email);
-		$password = $mysqli->escape_string($password);
-		$confirmpassword = $mysqli->escape_string($confirmpassword);
+        $firstname = $mysqli->escape_string($firstname);
+        $lastname = $mysqli->escape_string($lastname);
+        $email = $mysqli->escape_string($email);
+        $password = $mysqli->escape_string($password);
+        $confirmpassword = $mysqli->escape_string($confirmpassword);
 
-		$password = hash('sha256', $password);
+        $password = hash('sha256', $password);
 
-		$sql_registered = "SELECT * FROM user_info WHERE email = '$email';";
+        $sql_registered = "SELECT * FROM user_info WHERE email = '$email';";
 
-		$results_registered = $mysqli->query($sql_registered);
+        $results_registered = $mysqli->query($sql_registered);
 
-		if (!$results_registered) {
-			echo $mysqli->error;
-			$mysqli->close();
-			exit();
-		}			
-		
-		if ($results_registered->num_rows > 0) {
-			$error = "Email already registered.";
-		} else {
-			$sql = "INSERT INTO user_info (firstname, lastname, email, password)
-						VALUES ('$firstname', '$lastname', '$email', '$password');";
+        if (!$results_registered) {
+          echo $mysqli->error;
+          $mysqli->close();
+          exit();
+        }			
+        
+        if ($results_registered->num_rows > 0) {
+          $error = "Email already registered.";
+        } else {
+          $sql = "INSERT INTO user_info (firstname, lastname, email, password)
+                VALUES ('$firstname', '$lastname', '$email', '$password');";
 
-			$results = $mysqli->query($sql);
+          $results = $mysqli->query($sql);
 
-			if (!$results) {
-				echo $mysqli->error;
-				$mysqli->close();
-				exit();
-			}
-		}
+          if (!$results) {
+            echo $mysqli->error;
+            $mysqli->close();
+            exit();
+          }
+          $mysqli->close();
+          header('Location: login.php');
+        }
 
-		$mysqli->close();
-	}
+        $mysqli->close();
+      }
+    }
+} 
+else {
+  if(!isset($_POST['accepted'])){
+    $error = "Please fill out all required fields.";
+  }
 }
+
 
 ?>
 
@@ -71,12 +81,11 @@ if ( !isset($_POST['email']) || trim($_POST['email'] == '')
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Sign Up - Gym Soul</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
   <link rel="stylesheet" type="text/css" href="style/style.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">  <title>Home</title>
-
-  <title>Sign Up</title>
   <style>
     .container{background-color: #3b4352; max-width: 50%;}
     p{text-align: center;}
@@ -128,71 +137,5 @@ if ( !isset($_POST['email']) || trim($_POST['email'] == '')
     </form>
   </div>
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <script>
-    // document.querySelector('#createSubmit').onsubmit = () => {
-      
-    //   if ( document.querySelector('#firstname').value.trim().length == 0 ) {
-    //       document.querySelector('#firstname').classList.add('is-invalid');
-    //   } else {
-    //       document.querySelector('#firstname').classList.remove('is-invalid');
-    //   }
-    //   if ( document.querySelector('#lastname').value.trim().length == 0 ) {
-    //       document.querySelector('#lastname').classList.add('is-invalid');
-    //   } else {
-    //       document.querySelector('#lastname').classList.remove('is-invalid');
-    //   }
-
-    //   if ( document.querySelector('#email').value.trim().length == 0 ) {
-    //       document.querySelector('#email').classList.add('is-invalid');
-    //   } else {
-    //       document.querySelector('#email').classList.remove('is-invalid');
-    //   }
-
-    //   if ( document.querySelector('#password').value.trim().length == 0 ) {
-    //       document.querySelector('#password').classList.add('is-invalid');
-    //   } else {
-    //       document.querySelector('#password').classList.remove('is-invalid');
-    //   }
-
-    //   if ( document.querySelector('#confirm-password').value.trim().length == 0 ) {
-    //       document.querySelector('#confirm-password').classList.add('is-invalid');
-    //   } else {
-    //       document.querySelector('#confirm-password').classList.remove('is-invalid');
-    //   }
-
-    //   if ( !document.querySelector('#termsandconditions').checked ) {
-    //       document.querySelector('#termsandconditions').classList.add('is-invalid');
-    //   } else {
-    //       document.querySelector('#termsandconditions').classList.remove('is-invalid');
-    //   }
-
-    // //   let firstName = document.querySelector('#firstname').value.trim();
-    // //   let lastName = document.querySelector('#lastname').value.trim();
-    // //   let email = document.querySelector('#email').value.trim();
-    // //   let password = document.querySelector('#password').value.trim();
-    // //   let confirmPassword = document.querySelector('#confirm-password').value.trim();
-
-    // //   $.ajax({
-    // //       url: 'ajax-backend/create-new-user.php',
-    // //       type: 'POST',
-    // //       dataType: 'json',
-    // //       data: {firstname: firstName, lastname: lastName, email: email, password: password, confirmpassword: confirmPassword},
-    // //       success: (response) => {
-    // //         alert("response");
-    // //           console.log(response);
-  
-    // //       },
-    // //       error: (e) => {
-    // //           alert(e.response);
-    // //           console.log(e);
-    // //       }
-    // //   })
-
-      
-    //   return false;
-    // }
-
-
-  </script>
 </body>
 </html>

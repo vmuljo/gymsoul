@@ -1,47 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="style/summary.css">
-  <title>Project Summary</title>
-</head>
-<body>
-  <header>
-    <h1>Project Summary</h1>
-  </header>
-  <main>
-    <div class="section">
-        <h4>Topic and Purpose: </h4>
-        <p>My website is a workout logger website, branded as Gym Soul, that can allow users to log their workouts by choosing some preset workouts (or other custom), save the workouts, and see their weekly summary.</p>
-        <p>The intended audience for this website is anyone who goes to or wants to go to the gym to get a workout in and wants to keep track of what they do over the course of the workout</p>
-        <p>Gym Soul's purpose is to give users a way to organize their workouts and also keep track of how their mental health progresses over time (to be implemented in future versions).</p>
-    </div>
-    <div class="section">
-        <h4>Instructions</h4>
-        
-    </div>
-    <div class="section">
-        <h4>Sources</h4>
-        <p></p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <link
+      rel="stylesheet" type="text/css"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <style>
+      body{
+        padding: 3em;
+      }
+      header{
+        text-align: center;
+      }
+      main{
+        width: 80%;
+        margin: 0 auto;
+      }
+      .section{
+        margin: 2em 0px;
+      }
 
-    </div>
-    <div class="section">
+      #button{text-align: center; margin:0 auto;}
+    </style>
+    
+    <title>Project Summary</title>
+  </head>
+  <body>
+    <header>
+      <h1>Project Summary - Gym Soul</h1>
+    </header>
+    <main>
+      <div class="section">
+        <h4>Topic and Purpose:</h4>
+        <p>
+          My website is a workout logger website, branded as Gym Soul, that can
+          allow users to log their workouts by choosing some preset workouts (or
+          other custom), save the workouts, and see their weekly summary.
+        </p>
+        <p>
+          The intended audience for this website is anyone who goes to or wants
+          to go to the gym to get a workout in and wants to keep track of what
+          they do over the course of the workout
+        </p>
+        <p>
+          Gym Soul's purpose is to give users a way to organize their workouts
+          and also keep track of how their mental health progresses over time
+          (to be implemented in future versions).
+        </p>
+      </div>
+      <div class="section">
+        <h4>Instructions</h4>
+        <p>
+          My site works by using user credentials to log in, which the user can
+          create an account or, for testing purposes, access the premade user
+          account for Tommy Trojan (username: ttrojan@usc.edu, password: itp304)
+        </p>
+        <p>
+          Upon login, users are met with the home screen, which lets users view
+          their last 5 logged workouts and allow them to log a new workout.
+          Clicking "Log a new workout" opens up a modal form that users can
+          input information of their workout into. Users are given the freedom
+          of inputting custom information into time of workout, reps, and
+          weight, so they are not restricted to numbers.
+        </p>
+        <p>
+          Users can access the Workouts page through the sidebar. On this page,
+          they can view all the workouts they have logged and filter the
+          workouts by searching for the name of workout. The workouts are
+          displayed in card form to show basic information, but upon click of a
+          card, an information modal opens up to display the workout more in
+          depth, showing each exercise performed along with sets performed.
+          Users also have the option of deleting the workout or updating the
+          basic information (title, length, and date of workout) when they click
+          on the modal.
+        </p>
+        <p>
+          To sign out, users can simply click the signout button on the bottom
+          of the sidebar.
+        </p>
+      </div>
+      <div class="section">
+        <h4>Sources</h4>
+        <p>
+          The source of my data largely comes from me and my knowledge with the
+          gym, so I inputted some of the most popular exercises into the
+          exercises table that users can choose from. However, users may also
+          add a custom workout through text input if not in dropdown box. The
+          rest of my data comes from user input, through creating an account or
+          creating new workouts.
+        </p>
+      </div>
+      <div class="section">
         <h4>Database Diagram</h4>
         <img src="img/database-connections.png" alt="Database Diagram" />
-    </div>
-    <div class="section">
+      </div>
+      <div class="section">
         <h4>Extras</h4>
         <ol>
-            <li>Frontend/Backend AJAX</li>
-            <li>SQL Aggregate Functions</li>
-            <li>Many to many table relationship</li>
-            <li>Sessions</li>
-            <li>Permissions for only one level: registered users</li>
-        </ol> 
-    </div>
-  </main>
-</body>
+          <li>
+            Frontend/Backend AJAX
+            <ul>
+              <li>
+                Most of my project uses AJAX calls to communicate with the
+                backend and receive information from it to keep the website at
+                single page processing and not redirecting to other pages upon
+                submit
+              </li>
+              <li>
+                This includes getting workouts, adding workouts, getting
+                exercises, deleting workouts, refreshing exercises, and
+                searching for workouts.
+              </li>
+            </ul>
+          </li>
+          <li>
+            SQL Aggregate Functions
+            <ul>
+              <li>
+                One SQL Aggregate function was used, which was used in the
+                Workouts page when displaying the total count of exercises for
+                each workout on a card.
+              </li>
+            </ul>
+          </li>
+
+          <li>
+            Many to many table relationship
+            <ul>
+              <li>
+                One many to many table relationship is used here, between the
+                workouts and exercises. This table holds the workout id and
+                exercise id, as many workouts has many exercises, so we use this
+                joining table to connect the data from workouts and data from
+                exercises.
+              </li>
+            </ul>
+          </li>
+
+          <li>
+            Sessions
+            <ul>
+              <li>
+                Sessions is used when a user logs in, which then we store if the
+                user is logged in so they remain logged in on page refresh and
+                so we maintain the user id of the user, which we use to fetch
+                workouts.
+              </li>
+            </ul>
+          </li>
+          <li>
+            Permissions for only one level: registered users
+            <ul>
+              <li>
+                I only implement one level of permissions for this website,
+                which is for registered users so they can add workouts, delete
+                workouts, update workout information, and read their workout
+                information. I do not implement any admin or global level
+                permission levels.
+              </li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+
+      <div class="section">
+        <h4>Frameworks/Templates</h4>
+        <p>
+          This project uses the Bootstrap 5.0 template all over the projects
+          website to help with templating and displaying the style. I also use
+          the modals from Bootstrap to help with templating the modal and having
+          it display modally.
+        </p>
+      </div>
+      <div id="button">
+        <a href="login.php"><button type="button" class="btn btn-primary">Go to Gym Soul</button></a>
+      </div>
+    </main>
+  </body>
 </html>

@@ -7,8 +7,7 @@ if ( $mysqli->connect_errno ) {
     exit();
 }
 
-$user_id = 1;
-// $user_id = $_SESSION['user_id'];
+$user_id = intval($_SESSION['user_id']);
 
 $sql_cards = "SELECT *
                 FROM workouts 
@@ -56,9 +55,9 @@ if (!$results_cards) {
                 <!-- <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"/></svg> -->
                 <span class="fs-4">Gym Soul</span>
             </a>
-            <a href="#" class="d-flex align-items-center text-white text-decoration-none mt-3 mb-md-0 me-md-auto" id="user">
+            <a href="profile.php" class="d-flex align-items-center text-white text-decoration-none mt-3 mb-md-0 me-md-auto" id="user">
                 <img src="img/ttrojan.jpeg" alt="profile picture" width="32" height="32" class="rounded-circle me-2">
-                <strong>Tommy Trojan</strong>
+                <strong><?php echo $_SESSION['name']; ?></strong>
                 </a>
             <hr>
             <div class="selections d-flex flex-column ">
@@ -79,13 +78,13 @@ if (!$results_cards) {
                 <hr>
                 <ul class="nav nav-pills flex-column mb-auto">
                     <li>
-                        <a href="settings.html" class="nav-link text-white">
+                        <a href="profile.php" class="nav-link text-white">
                         <!-- <svg class="bi me-2" width="16" height="16"><use xlink:href="#people-circle"/></svg> -->
-                        Settings
+                        Profile
                         </a>
                     </li>
                     <li>
-                        <a href="login.php" class="nav-link text-white">
+                        <a href="signout.php" class="nav-link text-white">
                         <!-- <svg class="bi me-2" width="16" height="16"><use xlink:href="#grid"/></svg> -->
                         Sign out
                         </a>
@@ -109,7 +108,7 @@ if (!$results_cards) {
                     <button class="btn btn-outline-light" type="button" id="search-button">Search Workout</button>
                 </div>
                 
-                <!-- Select to sort by latest or earliest, no time to implement -->
+                <!-- Select to sort by latest or earliest, for future implementation-->
                 <!-- <div>
                     <select id="select" class="form-select text-white" aria-label="Default select example">
                         <option value="1" selected>Latest</option>

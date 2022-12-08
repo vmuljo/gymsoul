@@ -7,8 +7,7 @@ if ( $mysqli->connect_errno ) {
     exit();
 }
 
-$user_id = 1;
-// $user_id = $_SESSION['user_id'];
+$user_id = intval($_SESSION['user_id']);
 
 $mysqli->set_charset('utf8');
 
@@ -67,9 +66,9 @@ if (!$results_slider) {
                 <!-- <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"/></svg> -->
                 <span class="fs-4">Gym Soul</span>
             </a>
-            <a href="#" class="d-flex align-items-center text-white text-decoration-none mt-3 mb-md-0 me-md-auto" id="user">
+            <a href="profile.php" class="d-flex align-items-center text-white text-decoration-none mt-3 mb-md-0 me-md-auto" id="user">
                 <img src="img/ttrojan.jpeg" alt="profile picture" width="32" height="32" class="rounded-circle me-2">
-                <strong>Tommy Trojan</strong>
+                <strong><?php echo $_SESSION['name']; ?></strong>
                 <!-- Might add profile page? Maybe in future versions where "Friend" features are implemented -->
                 </a>
             <hr>
@@ -91,13 +90,13 @@ if (!$results_slider) {
                 <hr>
                 <ul class="nav nav-pills flex-column mb-auto">
                     <li>
-                        <a href="settings.html" class="nav-link text-white">
+                        <a href="profile.php" class="nav-link text-white">
                         <!-- <svg class="bi me-2" width="16" height="16"><use xlink:href="#people-circle"/></svg> -->
-                        Settings
+                        Profile
                         </a>
                     </li>
                     <li>
-                        <a href="login.php" class="nav-link text-white">
+                        <a href="signout.php" class="nav-link text-white">
                         <!-- <svg class="bi me-2" width="16" height="16"><use xlink:href="#grid"/></svg> -->
                         Sign out
                         </a>
@@ -109,7 +108,7 @@ if (!$results_slider) {
     </nav>
     <main>
         <div class="d-flex flex-column flex-shrink-0 p-3 text-white nav-body">
-            <h1>Welcome, Tommy Trojan</h1>
+            <h1>Welcome, <?php echo $_SESSION['name']; ?></h1>
             <hr>
             <div class="d-flex justify-content-around">
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newWorkout" onclick="refresh()">Log a new Workout</button>

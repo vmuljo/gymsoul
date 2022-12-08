@@ -8,8 +8,7 @@ if ( $mysqli->connect_errno ) {
     exit();
 }
 
-$user_id = 1; // will use sessions here
-// $user_id = $_SESSION['user_id'];
+$user_id = intval($_SESSION['user_id']);
 $workout_id = intval($_POST['workout_id']);
 
 $sql_cards = "SELECT * FROM workouts WHERE user_id = $user_id AND id = $workout_id;";

@@ -1,4 +1,5 @@
 <?php
+// gets exercises based on selected dropdown option (muscle group)
     require '../config/config.php';
 
     $selected_option = $_POST['option_value'];

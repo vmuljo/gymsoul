@@ -1,4 +1,5 @@
 <?php
+// Call this backend code when searching and wanting to parse based on search
 require '../config/config.php';
 
 $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
@@ -40,6 +41,5 @@ $all_rows = $results->fetch_all(MYSQLI_ASSOC);
 
 $all_rows = json_encode($all_rows);
 echo $all_rows;
-//Error Code: 1054. Unknown column 'workouts_exercises_id.workout_id' in 'on clause'
 
 ?>

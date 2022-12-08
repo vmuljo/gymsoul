@@ -1,5 +1,5 @@
 <?php 
-
+// delete an added exercise from the holding table so its not added to the workout
 require '../config/config.php';
 
 $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);

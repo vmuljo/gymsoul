@@ -1,5 +1,5 @@
 <?php 
-
+// edit the workout 
 if (!isset($_POST['name']) || trim($_POST['name']) == '' ||
 	!isset($_POST['date']) || trim($_POST['date']) == '' ||
 	!isset($_POST['length']) || trim($_POST['length']) == ''){

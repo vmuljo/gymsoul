@@ -1,4 +1,5 @@
 <?php 
+// Call this when adding an exercise with the set
 require '../config/config.php';
 
 $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);

@@ -1,5 +1,4 @@
 <?php
-	
 	require "config/config.php";
 
 	if ( isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true ) {
@@ -89,8 +88,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Login - Gym Soul</title>
+	<title>Login - Gym Soul</title>
+  <meta charset="UTF-8">  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
   <link rel="stylesheet" type="text/css" href="style/style.css">

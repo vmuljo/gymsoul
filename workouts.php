@@ -7,8 +7,9 @@ if ( $mysqli->connect_errno ) {
     exit();
 }
 
-$user_id = intval($_SESSION['user_id']);
+$user_id = intval($_SESSION['user_id']); // gets user id from session
 
+// gets all the workouts under the user id
 $sql_cards = "SELECT *
                 FROM workouts 
                 WHERE user_id = $user_id 
@@ -52,7 +53,6 @@ if (!$results_cards) {
     <nav>
         <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark nav-bar">
             <a href="home.html" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-                <!-- <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"/></svg> -->
                 <span class="fs-4">Gym Soul</span>
             </a>
             <a href="profile.php" class="d-flex align-items-center text-white text-decoration-none mt-3 mb-md-0 me-md-auto" id="user">
@@ -64,13 +64,11 @@ if (!$results_cards) {
                 <ul class="nav nav-pills flex-column mb-auto">
                     <li class="nav-item">
                         <a href="home.php" class="nav-link text-white">
-                        <!-- <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"/></svg> -->
                         Home
                         </a>
                     </li>
                     <li>
                         <a href="workouts.php" class="nav-link active ">
-                        <!-- <svg class="bi me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg> -->
                         Workouts
                         </a>
                     </li>
@@ -79,13 +77,11 @@ if (!$results_cards) {
                 <ul class="nav nav-pills flex-column mb-auto">
                     <li>
                         <a href="profile.php" class="nav-link text-white">
-                        <!-- <svg class="bi me-2" width="16" height="16"><use xlink:href="#people-circle"/></svg> -->
                         Profile
                         </a>
                     </li>
                     <li>
                         <a href="signout.php" class="nav-link text-white">
-                        <!-- <svg class="bi me-2" width="16" height="16"><use xlink:href="#grid"/></svg> -->
                         Sign out
                         </a>
                     </li>
@@ -128,7 +124,7 @@ if (!$results_cards) {
                     <p><?php echo $row_cards['date']; ?></p>
                     <p><?php echo $row_cards['length']; ?></p>
                     <?php  
-                    // $workout_id = $row_cards['id'];
+                    // Gets the total number of exercises using SQL aggregate function COUNT from the workout id
                     $sql_exercises = "SELECT workouts_exercises_join.workout_id, COUNT(*) as total_exercises
                                         FROM workouts_exercises_join 
                                         WHERE workouts_exercises_join.workout_id = $workout_id 
@@ -222,6 +218,7 @@ if (!$results_cards) {
         // show the logged workout modal when clicking on a card in workouts tab
         function cardClicked(card){
             console.log(card);
+            // first ajax call to get the workout information
             $.ajax({
                 url: 'ajax-backend/get_workout.php',
                 type: 'POST',
@@ -240,6 +237,8 @@ if (!$results_cards) {
                     console.log(e);
                 }
             })
+
+            // second ajax call to get the exercises from the workout id
             $.ajax({
                 url: 'ajax-backend/get_exercises.php',
                 type: 'POST',
@@ -263,6 +262,7 @@ if (!$results_cards) {
             $('#loggedWorkout').modal('show');
         }
 
+        // fills the exercise tables
         function fillTableSection(exercise){
             let li = document.createElement('li');
             let exercise_name = document.createElement('p');
@@ -324,6 +324,7 @@ if (!$results_cards) {
 
         }
 
+        // When searched, call ajax to get table data with certain title
         document.querySelector('#search-button').onclick = () => {
             var term = document.querySelector('#search-field').value.trim();
 
@@ -357,6 +358,7 @@ if (!$results_cards) {
             })
         }
 
+        // adds cards to the display
         function addCard(exercise){
             let cardDiv = document.createElement('div');
             cardDiv.classList.add('card','text-black','p-3','my-4','border','border-light','text-white','loggedWorkoutCard');
@@ -383,6 +385,7 @@ if (!$results_cards) {
             document.querySelector('#cards-list').appendChild(cardDiv);
         }
 
+        // Deletes a workout from the database
         function deleteWorkout(btn){
             console.log(btn.parentNode.parentNode.parentNode.dataset.id)
             $.ajax({
@@ -416,10 +419,9 @@ if (!$results_cards) {
             })
 
             $('#loggedWorkout').modal('hide');
-            // ajax stuff to delete the button
-            // btn.parentNode.remove();"Cannot delete or update a parent row: a foreign key constraint fails (`muljo_gym_soul_db`.`workouts_exercises_join`, CONSTRAINT `fk_workouts_exercises_join_workouts1` FOREIGN KEY (`workout_id`) REFERENCES `workouts` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION)"
         }
 
+        // Function to call when edit button clicked, allows user to edit the name, date, and length of workout
         function editWorkoutModal(workout){
             $.ajax({
                 url: 'ajax-backend/get_workout.php',
@@ -443,8 +445,8 @@ if (!$results_cards) {
             $('#editWorkout').modal('show');
         }
 
+        // Edit form submitted with new data
         document.querySelector("#editSubmit").onsubmit = () => {
-        // function editWorkoutSubmit(){
             let name = $('#edit-workout-name').val();
             let date = $('#edit-date').val();
             let length = $('#edit-length').val();
@@ -473,7 +475,7 @@ if (!$results_cards) {
 
             return false;
         }
-
+        // adds the cards again when modal is hidden
         $("#loggedWorkout").on("hidden.bs.modal", function () {
             $.ajax({
                 url: 'ajax-backend/modal-close.php',

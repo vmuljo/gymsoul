@@ -1,5 +1,5 @@
 <?php 
-
+// when modal closed, calls this backend code to reload
 require '../config/config.php';
 
 $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);

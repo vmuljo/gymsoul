@@ -1,5 +1,5 @@
 <?php
-
+// gets all the exercises on a workout id
 require "../config/config.php";
 $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 

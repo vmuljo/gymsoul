@@ -1,15 +1,5 @@
 <?php 
-// require "config/config.php";
-
-// $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-
-// if ( $mysqli->connect_errno ) {
-//     echo $mysqli->connect_error;
-//     exit();
-// }
-
-// $mysqli->set_charset('utf8');
-
+// get information from muscle groups to display on dropdown to select group
 $sql_muscle = "SELECT muscle, muscle_id FROM muscle_groups;";
 $results_muscle = $mysqli->query($sql_muscle);
 if ( !$results_muscle ) {
@@ -106,15 +96,10 @@ $mysqli->close();
                         </table>
                     </div>     
                     <div class="d-flex justify-content-end">
-                    <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
                     <button type="submit" class="btn btn-primary">Save workout</button>
                     </div>
                 </form>
             </div>
-            <!-- <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" onclick="loggedWorkoutClicked()">Log it!</button>
-            </div> -->
         </div>
     </div>
 </div>
@@ -123,9 +108,9 @@ $mysqli->close();
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
 <script>
+    // Function to load exercises for each category
     function load_exercises(){
         let selected_muscle_group=$("#muscle_group option:selected").val(); //get the value of the current selected option.
-
         $.ajax({
             url: 'ajax-backend/dropdown-select.php',
             type: 'POST',
@@ -140,10 +125,9 @@ $mysqli->close();
                         console.log(element);
                         fillSelect(element);
                     });
-                    // document.querySelector('#exercise-name').disabled=true;
                 } else{
+                    // just fill if response is only 1
                     fillSelect(response);
-                    // document.querySelector('#exercise-name').disabled=false;
                 }
             },
             error: (e) => {
@@ -153,6 +137,7 @@ $mysqli->close();
         })
     }
 
+    // fill the dropdown for each category
     function fillSelect(exercise){
         let option = document.createElement('option');
 
@@ -160,9 +145,9 @@ $mysqli->close();
         option.textContent = exercise.exercise;
 
         document.querySelector('#muscle_exercises').appendChild(option)
-
     }
 
+    // Adds the set to the table
     let count = 0;
     function addSetClicked(){
         count++;
@@ -202,6 +187,7 @@ $mysqli->close();
         document.querySelector('#weight').value = "";
     }
 
+    // When the add exercise button clicked, add the entire table data into the workout exercises table
     function addNewExerciseClicked(){
         count = 0;
         let base = "<tr><td></td><td><input type='text' class='form-control' id='reps'/></td><td><input type='text' class='form-control' id='weight'/></td><td><button type='button' class='btn btn-outline-primary' onclick='addSetClicked()'>Add new set</button></td></tr>";
@@ -217,14 +203,17 @@ $mysqli->close();
         let reps = [];
         let weight = [];
 
+        // gets the text content of each set and adds it to an array
         for (let set of addedSets){
             reps.push(set.querySelectorAll('td')[1].textContent);
             weight.push(set.querySelectorAll('td')[2].textContent);
         }
 
+        // Converts the array to a string
         reps = reps.toString();
         weight = weight.toString();
 
+        // ajax call to insert data into holding table and get the newly updated data back to add to the table 
         $.ajax({
             url: 'ajax-backend/add-new-exercise.php',
             type: 'POST',
@@ -266,7 +255,8 @@ $mysqli->close();
                 console.log(e);
             }
         })
-                
+        
+        // resets the exercise section
         document.querySelector('#addSets').innerHTML = base;
         document.querySelector('#muscle_group').value = "0";
         document.querySelector('#muscle_exercises').value = "0";
@@ -274,11 +264,14 @@ $mysqli->close();
 
     }
 
+    // when delete clicked on a set
     function deleteSetClicked(btn){
         console.log(btn.parentNode);
         btn.parentNode.remove();
+        count--;
     }
 
+    // When delete exercise clicked, remove from exercises table
     function deleteExerciseClicked(btn){
         console.log("Exercise clicked");
         $.ajax({
@@ -288,7 +281,7 @@ $mysqli->close();
             success: (response) => {
                 console.log(response);
                 console.log(btn.parentNode.parentNode);
-                // alert("Successfully added");
+                // remove from display
                 btn.parentNode.parentNode.remove();
             },
             error: (e) => {
@@ -296,12 +289,11 @@ $mysqli->close();
                 console.log(e);
             }
         })
-        // ajax stuff to delete the button
-        // btn.parentNode.remove();
+
     }
 
+    // when the new workout submit button is clicked on the modal, add it to the workouts table and hide the modal
     document.querySelector('#newSubmit').onsubmit = () => {
-    // function loggedWorkoutClicked(){
         let workoutName = document.querySelector('#workout-name').value.trim();
         let date = document.querySelector('#date').value;
         let length = document.querySelector('#length').value.trim();
